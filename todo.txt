@@ -1,0 +1,4 @@
+Big O notaion
+Call by value , call by refernce
+
+Garbage collector , Global Interpreter Lock 
