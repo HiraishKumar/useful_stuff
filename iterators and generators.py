@@ -127,3 +127,4 @@ def combinater(iterable,size):              #{iterable has to be a string or a l
     print(list(result))
 combinater('ABCD',2)
 # >>>[('A', 'B'), ('A', 'C'), ('A', 'D'), ('B', 'C'), ('B', 'D'), ('C', 'D')]
+
