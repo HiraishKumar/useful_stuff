@@ -128,3 +128,66 @@ def combinater(iterable,size):              #{iterable has to be a string or a l
 combinater('ABCD',2)
 # >>>[('A', 'B'), ('A', 'C'), ('A', 'D'), ('B', 'C'), ('B', 'D'), ('C', 'D')]
 
+
+import time
+timer=0
+
+for i in range(10):
+    start_time = time.time()
+
+    # def first_n(n):
+    #     '''Build and return a list'''
+    #     num, nums = 0, []
+    #     while num < n:
+    #         nums.append(num)
+    #         num += 1
+    #     return nums
+
+    # print(sum(first_n(100000000)))
+
+
+    # #VS
+
+
+    # # Using the generator pattern (an iterable)
+    # class first_n(object):
+
+
+    #     def __init__(self, n):
+    #         self.n = n
+    #         self.num = 0
+
+
+    #     def __iter__(self):
+    #         return self
+
+
+        
+    #     def __next__(self):
+    #         return self.next()
+
+
+    #     def next(self):
+    #         if self.num < self.n:
+    #             cur, self.num = self.num, self.num+1
+    #             return cur
+    #         raise StopIteration()
+
+
+    # print(sum(first_n(100000000)))
+
+    def summer(n):
+        num,sum=0,0
+        while num<=n:
+            sum+=num;
+            num+=1
+        return sum 
+    print(summer(100000000))
+
+
+    end_time = time.time()
+    execution_time = end_time - start_time
+    timer+=execution_time
+
+    print("Execution time: ", execution_time, " seconds")
+print(timer/10)
