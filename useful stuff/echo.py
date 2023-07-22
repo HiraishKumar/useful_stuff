@@ -1,12 +1,24 @@
-# echo.py
 
-def echo(text: str, repetitions: int = 3) -> str:
-    """Imitate a real-world echo."""
-    echoed_text = ""
-    for i in range(repetitions, 0, -1):
-        echoed_text += f"{text[-i:]}\n"
-    return f"{echoed_text.lower()}."
 
-if __name__ == "__main__":
-    text = input("Yell something at a mountain: ")
-    print(echo(text))
+t=int(input('input integer here: ')) #This must be an odd number
+c = 'H'
+#Top Cone
+for i in range (0,t):
+    print((c*(1+2*i)).center(t*2,'-'))    
+#Top Pillars
+for i in range(t+1):
+    print((c*t).center(t*2,'-')+(c*t).center(t*6,'-'))
+#Middle Beam
+for i in range((t+1)//2):
+    print((c*(t*5)).center(t*6,'-'))
+#Bottom Pillars
+for i in range(t+1):
+    print((c*t).center(t*2,'-')+(c*t).center(t*6),'-')
+#Bottom cone
+for i in range(0,t):
+    print((c*(t*2-1-2*i)).center(t*10),'-')
+
+    
+    
+    
+
