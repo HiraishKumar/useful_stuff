@@ -1,6 +1,4 @@
-for i in range(9):
-    print(i//3)
-
-
+string='919875641230'
+print(string[-10:-1])
 
     
