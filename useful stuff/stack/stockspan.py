@@ -1,15 +1,35 @@
-test=[2,5,9,3,1,12,6,8,7]
 
-def StockSpan(test:list[int])-> dict:
-    stack=[]
-    Stock_span={}
+def span(rates:list[int])-> list:
     
-    for num,i in enumerate(test,1):
-        if len(stack)==0 or i > stack[-1] :            
-            stack.append((num,i))
+    # stockspan = [1]
+    # stack = [0]
+
+    # for i in range(1, len(rates)):
+    #     while len(stack)!=0 and rates[i] > rates[stack[-1]] :
+    #         stack.pop()
+
+    #     if len(stack) > 0:
+    #         stockspan.append(i - stack[-1])
+    #     else:
+    #         stockspan.append(i + 1) 
+
+    #     stack.append(i)
+    
+    # return stockspan
+    stock_span=[1]
+    stack=[0]
+    for index in range(1,len(rates)):
+        while len(stack) != 0 and rates[index] > rates[stack[-1]]:
+            stack.pop()
+            
+        if len(stack) != 0:
+            stock_span.append(index-stack[-1])
         else:
-            while len(stack)!=0 and stack[-1] <= i :
-                Stock_span[i] = num 
+            stock_span.append(index+1)
+        
+        stack.append(index)    
+    return stock_span
+test=[2,5,9,3,1,12,6,8,7]
+    
 
-
-print(StockSpan(test))       
+print(span(test))    
