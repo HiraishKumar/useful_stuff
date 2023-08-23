@@ -18,7 +18,7 @@
 #     areas=max(areas,test[-1])
 #     return areas
 
-# print(Largesthistogram(test))
+print(Largesthistogram(test))
 
 def largest_area_histogram(heights):
     stack = []  # Initialize a stack to keep track of indices
