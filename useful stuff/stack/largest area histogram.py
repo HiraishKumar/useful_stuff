@@ -20,24 +20,45 @@
 
 # print(Largesthistogram(test))
 
-def largest_area_histogram(heights):
-    stack = []  # Initialize a stack to keep track of indices
-    max_area = 0
+# def largest_area_histogram(heights):
+#     stack = []  # Initialize a stack to keep track of indices
+#     max_area = 0
     
-    for i in range(len(heights)):
-        while stack and heights[i] <= heights[stack[-1]]:
-            height = heights[stack.pop()]
-            width = i if not stack else i - stack[-1] - 1
-            max_area = max(max_area, height * width)
-        stack.append(i)
+#     for i in range(len(heights)):
+#         while stack and heights[i] <= heights[stack[-1]]:
+#             height = heights[stack.pop()]
+#             width = i if not stack else i - stack[-1] - 1
+#             max_area = max(max_area, height * width)
+#         stack.append(i)
     
-    while stack:
-        height = heights[stack.pop()]
-        width = len(heights) if not stack else len(heights) - stack[-1] - 1
-        max_area = max(max_area, height * width)
+#     while stack:
+#         height = heights[stack.pop()]
+#         width = len(heights) if not stack else len(heights) - stack[-1] - 1
+#         max_area = max(max_area, height * width)
     
-    return max_area
+#     return max_area
 
-# Example usage
-histogram = [6, 2, 5, 4, 5, 1, 6]
-print(largest_area_histogram(histogram))
+# # Example usage
+# histogram = [6, 2, 5, 4, 5, 1, 6]
+# print(largest_area_histogram(histogram))
+
+test=[2,1,5,6,2,3]
+# test=[4,3,2,1,2,3,4]
+
+def largestRectangleArea(heights:list[int])->int:
+    maxArea=0
+    stack=[]
+    for idx , hgt in enumerate(heights):
+        start = idx
+        while stack and stack[-1][1] > hgt:
+            index , height =stack.pop()
+            maxArea=max(maxArea,height*(idx - index))
+            start = index
+        stack.append((start,hgt))  
+    for idx , hgt in stack:
+        maxArea = max(maxArea,hgt*(len(heights)-idx)) 
+    return maxArea
+
+print(largestRectangleArea(test))
+
+
