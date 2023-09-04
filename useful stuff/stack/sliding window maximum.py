@@ -1,30 +1,29 @@
-test=[1,3,-1,-3,5,3,6,7]
+ascending=[1,2,3,4,5,6,7,8,9]
+# dscending=[4,3,2,1]
 window=3
 
 def maxSlidingWindow(nums: list[int], k: int) -> list[int]:
-    if k==1:
-        return nums
-    elif len(nums) == 1 or len(nums)==2:
-        return [max(nums)]
-    else:
-        otv=[]
-        b=max(nums[0:k])
-        otv.append(b)
-        for z in range(1,len(nums)-k+1):
-            if nums[z-1]==b:
-                if (nums[z]==b-1 or nums[z]==b) and nums[z+k-1]<nums[z]:
-                    b=nums[z]
-                    otv.append(b)
-                    continue
-                b=max(nums[z:z+k])
-                otv.append(b) 
-            elif nums[z+k-1]>b:
-                b=nums[z+k-1]
-                otv.append(b)
+    index_of_next_greater_in_range=0
+    max_index=0
+    result=[]
+    for i in range(len(nums)-k+1):
+        index_of_next_greater_in_range=i
+        test=i
+        while index_of_next_greater_in_range < len(nums):
+            if nums[i+1] > nums[i]:
+                index_of_next_greater_in_range=i+1
+                break
             else:
-                otv.append(b)
-        return otv
-print(maxSlidingWindow(test,window))
+                index_of_next_greater_in_range+=1
+        if index_of_next_greater_in_range < i+k-1:
+            max_index=index_of_next_greater_in_range
+        elif index_of_next_greater_in_range >= i+k-1:
+            max_index=i
+        result.append(nums[max_index])           
+    return result    
+        
+
+print(maxSlidingWindow(ascending,window))
 
    
         
