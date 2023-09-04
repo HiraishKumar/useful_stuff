@@ -4,6 +4,7 @@ def infix(string:str)->int:
     stack=[]
     operator=[]
     for i in string:
+        pass
     
                 
 
