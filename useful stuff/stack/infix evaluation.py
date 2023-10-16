@@ -1,41 +1,29 @@
 string='1-(     -2)'
 
-def infix(string:str)->int: 
-    stack=[]
-    if '+' not in string and '-' not in string:
-        ans=''
-        for i in string:
-            if i!='('and i!=')':
-                ans+=i
-        return int(ans)
-           
-    for i in string:
-        if i ==')':
-            while stack[-2]!='(':                
-                A=int(stack.pop())
-                opp=stack.pop()
-                B=int(stack.pop())
-                if opp=='+':
-                    stack.append(str(A+B))
-                elif opp=='-':
-                    stack.append(str(B-A))
-            num=stack.pop()
-            stack.pop()
-            stack.append(num)
-        elif i!=' ':
-            stack.append(i)
-    stack=stack[::-1] 
-    while len(stack)!=1:
-        A=int(stack.pop())
-        opp=stack.pop()
-        B=int(stack.pop())
-        if opp=='+':
-            stack.append(str(A+B))
-        elif opp=='-':
-            stack.append(str(A-B))
-    return int(stack[0])
-    
-    
+def infix(s:str)->int: 
+    num = 0
+    sign = 1
+    res = 0
+    stack = []
+    for i in range(len(s)): # iterate till last character
+        c = s[i]
+        if c.isdigit(): # process if there is digit
+            num = num*10 + int(c) # for consecutive digits 98 => 9x10 + 8 = 98
+        elif c in '-+': # check for - and +
+            res += num*sign
+            sign = -1 if c == '-' else 1
+            num = 0
+        elif c == '(':
+            stack.append(res)
+            stack.append(sign)
+            res = 0
+            sign = 1
+        elif c == ')':
+            res +=sign*num
+            res *=stack.pop()
+            res +=stack.pop()
+            num = 0
+    return res + num*sign
                 ##yeah
 
 print(infix(string))
