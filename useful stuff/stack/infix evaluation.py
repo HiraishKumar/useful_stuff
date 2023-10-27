@@ -23,6 +23,9 @@ def infix(s:str)->int:
             sign.append(i)
         elif i == ')':
             while sign and sign[-1] != '(':
+                # this dosent need to check for the higer priority signs like * 
+                # because they are already solved before encountering ')' in 
+                # the last else in this indent
                 operand.append(solve(sign,operand))
             sign.pop()  # Pop the '('
         else:
@@ -35,57 +38,6 @@ def infix(s:str)->int:
 
     while sign:
         operand.append(solve(sign,operand))
-
     return operand[0]
 
-
-    # operand=[]
-    # sign=[]
-    # #priority '('>'*'>'/','+','-'
-    # for i in s:
-    #     if i.isdigit():
-    #         operand.append(int(i)) 
-    #     else:
-    #         if s[i]==')':
-    #             while len(operand)>1 and sign[-1]!='(':
-    #                 if sign.pop()=='*':
-    #                     A=operand.pop()
-    #                     B=operand.pop()
-    #                     operand.append(A*B)
-    #                 elif sign.pop()=='/':
-    #                     if sign.pop()=='*':
-    #                         A=operand.pop()
-    #                         B=operand.pop()
-    #                         C=operand.pop()
-    #                         operand.append((C*B)/A)
-    #                     else:
-    #                         A=operand.pop()
-    #                         B=operand.pop()
-    #                         operand.append(B/A)
-    #                 elif sign.pop()=='+':
-    #                     if sign.pop()=='*':
-    #                         A=operand.pop()
-    #                         B=operand.pop()
-    #                         C=operand.pop()
-    #                         operand.append((C*B)+A)
-    #                     else:
-    #                         A=operand.pop()
-    #                         B=operand.pop()
-    #                         operand.append(B+A)                        
-    #                 elif sign.pop()=='-':
-    #                     if sign.pop()=='*':
-    #                         A=operand.pop()
-    #                         B=operand.pop()
-    #                         C=operand.pop()
-    #                         operand.append((C*B)-A)                           
-    #             sign.pop()
-    #         else:
-    #             sign.append(i)
-    # return operand[0]         
-        
-    # for i in range(len(s)):
-    #     if s[i]==' ':
-    #         s=s[0:i]+s[i+1:]
-    #     else:
-    #         pass
 print(infix(string))
