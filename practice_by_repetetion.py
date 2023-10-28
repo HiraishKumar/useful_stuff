@@ -1,15 +1,16 @@
-nums = [-1,1,0,-3,3]
+nums = [100,4,200,1,3,2]
 
-def productExceptSelf(nums: list[int]) -> list[int]:
-    lst=[]
-    prod=1
-    for i in nums:
-        if i!=0:
-            prod=prod*i 
-    if nums.count(0)==1:
-        return [0 if num!=0 else prod for num in nums ]
-    if nums.count(0)>1:
-        return [0 for i in nums]    
-    return [prod//num for num in nums]
+def longestConsecutive(nums: list[int]) -> int:
+    lst=sorted(set(nums))
+    left,right=0,0
+    longest=0
+    for i in range(1,len(lst)):
+        if lst[i-1]+1==lst[i]:
+            right=i
+        else:
+            longest=max(longest,(right-left+1))
+            left=i
+    return max(longest,(right-left+1))
 
-print(productExceptSelf(nums))
+
+print(longestConsecutive(nums))
