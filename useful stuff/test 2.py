@@ -1,10 +1,4 @@
-import math
+dic={'A':4,'B':3,'C':2,'D':1}
+k=2
 
-# Your float value
-float_number = 5.7
-
-# Round up to the nearest integer
-rounded_up = -int(-float_number // 1)
-
-# Display the result
-print(rounded_up)
+print((sorted(dic.keys(),key= lambda x:dic[x]))[0:k])
