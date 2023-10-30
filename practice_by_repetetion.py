@@ -24,6 +24,8 @@ def trap(height: list[int]) -> int:
             while r2<r1 :
                 water+=test-height[r1]
                 r1-=1                 
-    return water                             
+    return water              
+
+               
 
 print(trap(height))
