@@ -1,16 +1,29 @@
-nums = [100,4,200,1,3,2]
+height = [4,2,0,3,2,5]
 
-def longestConsecutive(nums: list[int]) -> int:
-    lst=sorted(set(nums))
-    left,right=0,0
-    longest=0
-    for i in range(1,len(lst)):
-        if lst[i-1]+1==lst[i]:
-            right=i
+def trap(height: list[int]) -> int:
+    max_index=height.index(max(height))
+    water=0
+    l1,l2=0,0
+    r1,r2=len(height)-1,len(height)-1
+    while l2 < max_index:
+        if height[l2+1] < height[l1]:
+            l2+=1
         else:
-            longest=max(longest,(right-left+1))
-            left=i
-    return max(longest,(right-left+1))
+            l2+=1
+            test=height[l1]
+            while l1<l2:
+                water+=test-height[l1]
+                l1+=1
+            
+    while max_index < r2:
+        if height[r2-1] < height [r1]:
+            r2-=1
+        else:
+            r2-=1  
+            test=height[r1]
+            while r2<r1 :
+                water+=test-height[r1]
+                r1-=1                 
+    return water                             
 
-
-print(longestConsecutive(nums))
+print(trap(height))
