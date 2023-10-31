@@ -1,31 +1,15 @@
-height = [4,2,0,3,2,5]
+s = "()[]{}"
 
-def trap(height: list[int]) -> int:
-    max_index=height.index(max(height))
-    water=0
-    l1,l2=0,0
-    r1,r2=len(height)-1,len(height)-1
-    while l2 < max_index:
-        if height[l2+1] < height[l1]:
-            l2+=1
+def isValid(s: str) -> bool:    
+    stack=[]
+    complement={'[':']','{':'}','(':')'}
+    for char in s:
+        if char in complement:
+            stack.append(char)
+        elif len(stack)==0 or complement[stack[-1]] != char:
+            return False
         else:
-            l2+=1
-            test=height[l1]
-            while l1<l2:
-                water+=test-height[l1]
-                l1+=1
-            
-    while max_index < r2:
-        if height[r2-1] < height [r1]:
-            r2-=1
-        else:
-            r2-=1  
-            test=height[r1]
-            while r2<r1 :
-                water+=test-height[r1]
-                r1-=1                 
-    return water              
-
-               
-
-print(trap(height))
+            stack.pop()
+    return len(stack)==0
+                 
+print(isValid(s))
