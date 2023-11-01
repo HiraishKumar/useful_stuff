@@ -1,3 +1,5 @@
-lst=[1,2,3,4,5,4,3,2,1]
-print(max(lst))
-print(lst.index(max(lst)))
+str1='123'
+str2='456'
+str1=str2+str1
+print(str1)
+print(str2+str1)
