@@ -10,6 +10,9 @@ def Celebrity(knowledge:list[list[int]])->int:
             stack.append(A)            
     if knowledge[stack[0]].count(1)==0:
         return stack[0]+1        
+   
+   
     return None
 print(Celebrity(knowledge))
+    
     
