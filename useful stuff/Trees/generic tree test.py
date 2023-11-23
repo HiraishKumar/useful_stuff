@@ -21,6 +21,9 @@ class Tree:
 
     def add_child(self, parent, data):
         if not self.is_empty():
+            
+            
+            
             self._add_child(self.root, parent, data)
         else:
             print("Cannot add child. Tree is empty.")
