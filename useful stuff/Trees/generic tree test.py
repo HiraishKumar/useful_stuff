@@ -38,6 +38,9 @@ class Tree:
     def traverse(self):
         if not self.is_empty():
             self._traverse(self.root)
+            
+            
+            
 
     def _traverse(self, node):
         print(node.data)
