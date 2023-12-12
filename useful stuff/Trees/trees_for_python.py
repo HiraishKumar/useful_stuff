@@ -20,6 +20,7 @@ class Tree:
                     Node=Node.left
                 elif Node.right:
                     Node=Node.right 
+                    
                 else:
                     return None               
         
