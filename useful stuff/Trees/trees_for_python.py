@@ -17,6 +17,7 @@ class Tree:
                 return Node
             else:
                 if Node.left and Node.left.data >= value:
+                    
                     Node=Node.left
                 elif Node.right:
                     Node=Node.right 
