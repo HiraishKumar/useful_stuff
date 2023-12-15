@@ -1,25 +1,29 @@
 class Node:
-    def __init__(self,value):
+    def __init__(self,value:int):
         self.right=None
         self.left=None
-        self.data=value
-        
+        self.data=value        
 class Tree:
     def createNode(self,data):
         return Node(data)
-    def AddLeft(self,data):
-        self.left = Node(data)
-    def AddRight(self,data):
-        self.right =Node(data)
-    def find (self,Node,value):
-        while True:
-            if Node.data == value:
-                return Node
-            else:
-                if Node.left and Node.left.data >= value:                    
-                    Node=Node.left
-                elif Node.right:
-                    Node=Node.right                     
-                else:
-                    return None               
-        
+    def insert(self,node,data):
+        if node == None:
+            return self.createNode(data)           
+        if data < node.data:
+            node.left=self.insert(node.left,data)
+        else:
+            node.right=self.insert(node.right,data)
+        return node
+    def traverse_inOrder(self,root):
+        if root is not None:
+            self.traverse_inOrder(root.left)
+            print(root.data)
+            self.traverse_inOrder(root.right)
+    
+lst=[5,63,41,8,56,69,36,15,5,1,65,2,15,2]
+
+tree=Tree()
+root=tree.createNode(lst[0])
+for i in lst:
+    tree.insert(root,i)
+tree.traverse_inOrder(root)
