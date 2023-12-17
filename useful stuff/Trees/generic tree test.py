@@ -44,6 +44,8 @@ class Tree:
             
             
             
+            
+            
 
     def _traverse(self, node):
         print(node.data)
