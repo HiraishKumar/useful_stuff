@@ -19,13 +19,6 @@ class Tree:
             self.traverse_inOrder(root.left)
             print(root.data)
             self.traverse_inOrder(root.right)
+            
+def Finder():
     
-lst=[5,63,41,8,56,69,36,15,1,65,2,15,2]
-print(str(lst.count(5)),"is the number of 5s")
-
-tree=Tree()
-root=tree.createNode(lst[0])
-for i in lst:
-    tree.insert(root,i)
-    # print(i)
-tree.traverse_inOrder(root)
