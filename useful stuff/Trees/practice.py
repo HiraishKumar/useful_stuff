@@ -18,6 +18,7 @@ class Tree:
         if root is not None:
             self.traverse_inOrder(root.left)
             print(root.data)
+            
             self.traverse_inOrder(root.right)
             
 def Finder():
