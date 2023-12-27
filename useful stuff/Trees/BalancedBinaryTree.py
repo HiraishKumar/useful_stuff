@@ -16,6 +16,8 @@ class Solution:
         # Recursively check the balance for left and right subtrees
         return self.isBalanced(root.left) and self.isBalanced(root.right)
 
+
+
     
     def height(self, root:[TreeNode])-> int:
         if not root:
