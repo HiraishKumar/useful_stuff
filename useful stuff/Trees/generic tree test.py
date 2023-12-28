@@ -20,10 +20,7 @@ class Tree:
             print("Tree already has a root")
 
     def add_child(self, parent, data):
-        if not self.is_empty():
-            
-            
-            
+        if not self.is_empty():                                 
             self._add_child(self.root, parent, data)
         else:
             print("Cannot add child. Tree is empty.")
@@ -37,15 +34,7 @@ class Tree:
 
     def traverse(self):
         if not self.is_empty():
-            self._traverse(self.root)
-            
-            
-            
-            
-            
-            
-            
-            
+            self._traverse(self.root)                    
 
     def _traverse(self, node):
         print(node.data)
