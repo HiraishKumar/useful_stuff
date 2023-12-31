@@ -30,4 +30,11 @@ class MonteCarlo(Scene):
         self.play(Write(equation2))
         self.play(equation2.animate.move_to(UP*2).scale(0.8))
         self.wait()
-           
+
+class SwapGrid(Scene):
+    def construct(self):
+        func = lambda pos: ((pos[0] * UP + pos[1] * LEFT) - pos)  
+        mob = StreamLines(func, x_range=[-5, 5, 1], y_range=[-5, 5, 1], stroke_width=3)  
+        self.add(mob)  
+        self.play()
+        self.wait()
