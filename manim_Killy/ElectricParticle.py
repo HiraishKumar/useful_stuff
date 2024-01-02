@@ -30,6 +30,7 @@ class ElectricParticle(Scene):
             if test!=0:
                 denom=np.power(test,5/2)
                 return (10*pos[0]/denom)*RIGHT + (10*pos[1]/denom)*UP
+            
             else:
                 return 0*UP +0*RIGHT       
             
