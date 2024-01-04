@@ -23,6 +23,8 @@ class ElectricParticle(Scene):
         #the x,y direction for a point(x,y)
         def Slope(pos):
             '''pos parameter has pos[0]=x and pos[1]=y
+            
+            
                         
             function to determine the slope in 
             the x,y direction for a point(x,y)'''
