@@ -8,6 +8,9 @@ class SwapGrid(Scene):
             stroke_width=1,
             axis_config={
                 "stroke_color": YELLOW,
+                
+                
+                
                 "stroke_width": 1,
             },
             background_line_style={"stroke_color": BLUE, "stroke_width": 1, "stroke_opacity": 1},
