@@ -57,7 +57,7 @@ class ElectricParticle(Scene):
         
         # creates the arrows that indicate direction
         # and magnitude of electric Feild
-        mob=ArrowVectorField(SlopeMul)
+        mob=StreamLines(SlopeMul,padding=3)
         self.add(mob)
         
         #adds Proton To Image
