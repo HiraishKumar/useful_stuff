@@ -21,17 +21,7 @@ class ElectricParticle(Scene):
         
         #function to determine the slope in 
         #the x,y direction for a point(x,y)
-        def Slope(pos):
-            '''pos parameter has pos[0]=x and pos[1]=y          
-            function to determine the slope in 
-            the x,y direction for a point(x,y)'''
-            test=(np.power(pos[0]+2,2)+np.power(pos[1]+2,2))
-            if test!=0:
-                denom=np.power(test,5/2)
-                return (10*(pos[0]+2)/denom)*RIGHT + (10*(pos[1]+2)/denom)*UP
-            
-            else:
-                return 0*UP +0*RIGHT  
+ 
         def SlopeMul(pos,x1=-2.25,y1=-1.25,x2=2.25,y2=1.25):
             test1=(np.power(pos[0]-x1,2)+np.power(pos[1]-y1,2))
             test2=(np.power(pos[0]-x2,2)+np.power(pos[1]-y2,2))            
