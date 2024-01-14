@@ -9,7 +9,7 @@ class Solution:
         def verify(root,left,right):
             if root is None:
                 return True 
-            if not (root.val > left and root.val < right):
+            if not (left < root.val < right):
                 return False
             return verify(root.right ,root.val,right) and verify(root.left,left,root.val)
         return verify(root,float("-inf"),float("inf")) 
