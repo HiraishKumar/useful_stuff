@@ -34,6 +34,7 @@ class Testing(Scene):
             # max_magnitude=2,
         )
         arrows=ArrowVectorField(cylinder_flow_vector_field)
+        
         # self.add(AnimatedStreamLines(
         #     lines,
         #     line_anim_class=ShowPassingFlash
