@@ -7,6 +7,9 @@ class TreeNode:
         self.right = right
         
         
+        
+        
+        
 class Solution:
     def isValidBST(self, root: TreeNode) -> bool:
         def verify(root,left,right):
