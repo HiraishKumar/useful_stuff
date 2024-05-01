@@ -8,9 +8,7 @@ def asciiConvert(image, type, saveas, scale):
     img.resize((w//scale,h//scale)).save("resized1.%s" % type)
     img = Image.open("resized1.%s" % type)
     w,h = img.size # get the new width and height
-    
-    grid = []
-    
+    grid = []    
     for i in range(h):
         grid.append(["X"]*w)
     
