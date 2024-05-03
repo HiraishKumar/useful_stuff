@@ -11,10 +11,8 @@ def asciiConvert(image, type, saveas, scale):
     grid = []    
     for i in range(h):
         grid.append(["X"]*w)
-    
     """Allocates storage for the image and loads the pixel data"""
     pix = img.load()
-
     for y in range(h):
         for x in range(w):
             if sum(pix[x,y])==0:
