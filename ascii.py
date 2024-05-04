@@ -55,9 +55,7 @@ def asciiConvert(image, type, saveas, scale):
                 grid[y][x] = "`"
             else:
                 grid[y][x] = " "
-    
-    art = open(saveas,"w")
-    
+    art = open(saveas,"w")    
     for row in grid:
         art.write("".join(row)+"\n")
 
