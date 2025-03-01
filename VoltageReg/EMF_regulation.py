@@ -6,7 +6,7 @@ def EMF_voltage_regulation(P_rated, vol_rated, Ra, Vsc, Isc, pf):
 
     pf_sin = (1-pf**2)**0.5
 
-    if pf > 0:
+    if pf >= 0:
         E = ((Vph * pf + Iph * Ra) ** 2 + (Vph * pf_sin + Iph * Xs) ** 2) ** 0.5
     else:
         E = ((Vph * pf + Iph * Ra) ** 2 + (Vph * pf_sin - Iph * Xs) ** 2) ** 0.5
