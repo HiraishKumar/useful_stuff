@@ -11,6 +11,12 @@ OB_mnemonics = {
     "RSOIA": "Perceptual Process"
 }
 
+# MI_mnemonics = {
+#     "MISDC" : ["PMMC Components","Magnetic Interactions Steer Deflecting Coil"]
+# }
+MI_mnemonics = {
+    "MISDC" : "PMMC Components"
+}
 ALL_mnemonics = {
     "OB" : OB_mnemonics
 }

@@ -1,5 +1,4 @@
 from random import shuffle
-from constants import OB_mnemonics
 
 class mnemonicize:
     """Takes in a Dict input in the format { "PMSHFR": "Perception Error" } and produces
@@ -42,7 +41,8 @@ class mnemonicize:
             print(print_str)
 
 if __name__ == "__main__":
+    from constants import MI_mnemonics
     print("This is activating the Mnemonics class as a demnonstration")
-    test = mnemonicize(OB_mnemonics)
+    test = mnemonicize(MI_mnemonics)
     test.print_random()
 
