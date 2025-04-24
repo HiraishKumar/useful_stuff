@@ -1,9 +1,10 @@
-from random import randint
 
-ans = []
-while len(ans)<12:
-    num = randint(1,12)
-    if num not in ans:
-        ans.append(num)
 
-print(ans)
+a ={1,2,3,4,5,6}
+b = {4,5,6,7,8,9}
+
+x = a & b
+y = a | b
+
+print(x)
+print(y)
