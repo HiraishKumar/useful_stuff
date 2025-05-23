@@ -1,0 +1,118 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 9;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+S_00000216a83a65c0 .scope module, "full_half_add_1bit_tb" "full_half_add_1bit_tb" 2 4;
+ .timescale -9 -9;
+v00000216a83f3e50_0 .var "a", 0 0;
+v00000216a83f3c70_0 .var "b", 0 0;
+v00000216a83f3bd0_0 .net "carry", 0 0, L_00000216a8397150;  1 drivers
+v00000216a83f42b0_0 .var "cin", 0 0;
+v00000216a83f4530_0 .var "new_carry", 0 0;
+v00000216a83f4350_0 .var "new_sum", 0 0;
+v00000216a83f4710_0 .net "sum", 0 0, L_00000216a8397000;  1 drivers
+S_00000216a83a6750 .scope module, "dut" "full_half_add_1bit" 2 9, 3 1 0, S_00000216a83a65c0;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "i_a";
+    .port_info 1 /INPUT 1 "i_b";
+    .port_info 2 /INPUT 1 "i_cin";
+    .port_info 3 /OUTPUT 1 "o_sum";
+    .port_info 4 /OUTPUT 1 "o_carry";
+L_00000216a8397150 .functor OR 1, L_00000216a8396f90, L_00000216a83970e0, C4<0>, C4<0>;
+v00000216a83a4830_0 .net "i_a", 0 0, v00000216a83f3e50_0;  1 drivers
+v00000216a83a48d0_0 .net "i_b", 0 0, v00000216a83f3c70_0;  1 drivers
+v00000216a83a4970_0 .net "i_cin", 0 0, v00000216a83f42b0_0;  1 drivers
+v00000216a83a4a10_0 .net "o_carry", 0 0, L_00000216a8397150;  alias, 1 drivers
+v00000216a83f3ef0_0 .net "o_sum", 0 0, L_00000216a8397000;  alias, 1 drivers
+v00000216a83f4210_0 .net "w_carry1", 0 0, L_00000216a8396f90;  1 drivers
+v00000216a83f4030_0 .net "w_carry2", 0 0, L_00000216a83970e0;  1 drivers
+v00000216a83f4490_0 .net "w_sum1", 0 0, L_00000216a8397070;  1 drivers
+S_00000216a848d380 .scope module, "h1" "half_adder" 3 15, 3 34 0, S_00000216a83a6750;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "h_a";
+    .port_info 1 /INPUT 1 "h_b";
+    .port_info 2 /OUTPUT 1 "h_sum";
+    .port_info 3 /OUTPUT 1 "h_carry";
+L_00000216a8397070 .functor XOR 1, v00000216a83f3e50_0, v00000216a83f3c70_0, C4<0>, C4<0>;
+L_00000216a8396f90 .functor AND 1, v00000216a83f3e50_0, v00000216a83f3c70_0, C4<1>, C4<1>;
+v00000216a83a68e0_0 .net "h_a", 0 0, v00000216a83f3e50_0;  alias, 1 drivers
+v00000216a8373120_0 .net "h_b", 0 0, v00000216a83f3c70_0;  alias, 1 drivers
+v00000216a83a6980_0 .net "h_carry", 0 0, L_00000216a8396f90;  alias, 1 drivers
+v00000216a848d510_0 .net "h_sum", 0 0, L_00000216a8397070;  alias, 1 drivers
+S_00000216a848d5b0 .scope module, "h2" "half_adder" 3 21, 3 34 0, S_00000216a83a6750;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "h_a";
+    .port_info 1 /INPUT 1 "h_b";
+    .port_info 2 /OUTPUT 1 "h_sum";
+    .port_info 3 /OUTPUT 1 "h_carry";
+L_00000216a8397000 .functor XOR 1, L_00000216a8397070, v00000216a83f42b0_0, C4<0>, C4<0>;
+L_00000216a83970e0 .functor AND 1, L_00000216a8397070, v00000216a83f42b0_0, C4<1>, C4<1>;
+v00000216a848d740_0 .net "h_a", 0 0, L_00000216a8397070;  alias, 1 drivers
+v00000216a83a4650_0 .net "h_b", 0 0, v00000216a83f42b0_0;  alias, 1 drivers
+v00000216a83a46f0_0 .net "h_carry", 0 0, L_00000216a83970e0;  alias, 1 drivers
+v00000216a83a4790_0 .net "h_sum", 0 0, L_00000216a8397000;  alias, 1 drivers
+S_00000216a83a4ab0 .scope task, "stimulus" "stimulus" 2 27, 2 27 0, S_00000216a83a65c0;
+ .timescale -9 -9;
+v00000216a83f4170_0 .var "A", 0 0;
+v00000216a83f45d0_0 .var "B", 0 0;
+v00000216a83f3db0_0 .var "Cin", 0 0;
+TD_full_half_add_1bit_tb.stimulus ;
+    %vpi_func 2 31 "$random" 32 {0 0 0};
+    %pad/s 1;
+    %store/vec4 v00000216a83f4170_0, 0, 1;
+    %vpi_func 2 32 "$random" 32 {0 0 0};
+    %pad/s 1;
+    %store/vec4 v00000216a83f45d0_0, 0, 1;
+    %vpi_func 2 33 "$random" 32 {0 0 0};
+    %pad/s 1;
+    %store/vec4 v00000216a83f3db0_0, 0, 1;
+    %load/vec4 v00000216a83f4170_0;
+    %store/vec4 v00000216a83f3e50_0, 0, 1;
+    %load/vec4 v00000216a83f45d0_0;
+    %store/vec4 v00000216a83f3c70_0, 0, 1;
+    %load/vec4 v00000216a83f3db0_0;
+    %store/vec4 v00000216a83f42b0_0, 0, 1;
+    %load/vec4 v00000216a83f4170_0;
+    %pad/u 2;
+    %load/vec4 v00000216a83f45d0_0;
+    %pad/u 2;
+    %add;
+    %load/vec4 v00000216a83f3db0_0;
+    %pad/u 2;
+    %add;
+    %split/vec4 1;
+    %store/vec4 v00000216a83f4350_0, 0, 1;
+    %store/vec4 v00000216a83f4530_0, 0, 1;
+    %delay 1, 0;
+    %end;
+    .scope S_00000216a83a65c0;
+T_1 ;
+    %vpi_call 2 18 "$dumpfile", "full_half_add_1bit_tb.vcd" {0 0 0};
+    %vpi_call 2 19 "$dumpvars", 32'sb00000000000000000000000000000000, S_00000216a83a65c0 {0 0 0};
+    %pushi/vec4 100, 0, 32;
+T_1.0 %dup/vec4;
+    %pushi/vec4 0, 0, 32;
+    %cmp/s;
+    %jmp/1xz T_1.1, 5;
+    %jmp/1 T_1.1, 4;
+    %pushi/vec4 1, 0, 32;
+    %sub;
+    %fork TD_full_half_add_1bit_tb.stimulus, S_00000216a83a4ab0;
+    %join;
+    %jmp T_1.0;
+T_1.1 ;
+    %pop/vec4 1;
+    %vpi_call 2 24 "$finish" {0 0 0};
+    %end;
+    .thread T_1;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "full_half_add_1bit_tb.v";
+    "./full_half_add_1bit.v";
