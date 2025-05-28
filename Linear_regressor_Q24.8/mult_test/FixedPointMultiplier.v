@@ -1,4 +1,5 @@
-module fixed_32_mult(
+// FixedPointMultiplier.v
+module FixedPointMultiplier(
     input signed [31:0] a_in,    // Input operand A (Q16.16 format)
     input signed [31:0] b_in,    // Input operand B (Q16.16 format)
     output signed [31:0] p_out,  // Product P (Q16.16 format)
@@ -11,6 +12,6 @@ module fixed_32_mult(
     assign product_full = a_in * b_in;
     assign p_out = product_full >>> FRACT_BITS;
 
-    assign overflow = (product_full[63:31] != {33{p_out[31]}});
+    assign overflow = (product_full[63:32] != {{32{p_out[31]}}});
 
 endmodule

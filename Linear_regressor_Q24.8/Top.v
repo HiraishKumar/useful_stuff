@@ -1,8 +1,8 @@
 
 module Top #(
     parameter NUM_ITERATIONS = 16,
-    parameter OFFSET = 32'h00040000,        // Offset of 4 from Y axis
-    parameter LEARNING_RATE = 32'h00008000  // Learning Rate of 0.5
+    parameter OFFSET = 32'h00000400,        // Offset of 4 from Y axis
+    parameter LEARNING_RATE = 32'h00000080  // Learning Rate of 0.5
 ) (
     input clk,
     input rst_n,                            // Active Low reset
@@ -111,6 +111,8 @@ end
         endcase
     end
  end
+
+// ALL CALCULATIONS ARE DONE IN FIXED POINT Q24.8 FORMAT
 
 // Calculate gradient
     gradient_func inst_grad (

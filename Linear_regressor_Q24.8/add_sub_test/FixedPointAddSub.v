@@ -1,4 +1,4 @@
-module fixed_32_add_sub(
+module FixedPointAddSub(
     input signed [31:0] a_in,      // Input operand A (Q16.16)
     input signed [31:0] b_in,      // Input operand B (Q16.16)
     input               sub_n_add, // Control signal: 0 for Add, 1 for Subtract
@@ -8,8 +8,8 @@ module fixed_32_add_sub(
     wire signed [32:0] temp_result_wide; // 1 bit extra wide to deetect overflow 
 
     assign temp_result_wide = (sub_n_add == 1'b1) ?
-                              ({{1{a_in[31]}}, a_in} - {{1{b_in[31]}}, b_in}) :
-                              ({{1{a_in[31]}}, a_in} + {{1{b_in[31]}}, b_in});
+                              ($signed({1'b0, a_in}) - $signed({1'b0, b_in})) : // if 1 then Subtraction
+                              ($signed({1'b0, a_in}) + $signed({1'b0, b_in})); // else Addition
 
     // Assign the lower 32 bits of the wide result to the output
     assign sum_diff_out = temp_result_wide[31:0];
