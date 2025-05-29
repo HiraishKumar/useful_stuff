@@ -9,10 +9,14 @@ module Top #(
     input start_op,                         // Level Dtected Operation Start 
     input signed [31:0] initial_x_in,       // Initial X
     output reg signed [31:0] x_at_min,      // X at minimum value of function
-    output reg signed [31:0] y_min,         // Minimum Values of fucntion
+    output reg signed [55:0] y_min,         // Minimum Values of fucntion
     output reg done_op,                      // Flag to signal Completion of operation
     // FOR DEBUGGING
-    output reg signed [31:0] learning_rate_out   // Outputs the value of learning rate 
+    output reg signed [31:0] learning_rate_out,   // Outputs the value of learning rate 
+    output wire gradient_overflow,
+    output wire x_sqr_overflow,
+    output wire x_diff_overflow,
+    output wire init_x_square_overflow
 );
 
 // Internal register Declaration
@@ -28,10 +32,10 @@ reg [1:0] next_state;
 
 wire comp_result;
 wire signed [31:0] gradient_out;
-wire signed [31:0] x_squared_out;
+wire signed [55:0] x_squared_out;
 wire signed [31:0] x_diff_out;
 wire signed [31:0] x_next_val;
-wire signed [31:0] initial_y_min_val;
+wire signed [55:0] initial_y_min_val;
 wire signed [31:0] x_minus_offset;
 wire signed [31:0] initial_x_minus_offset;
 // State Machine State declaration
@@ -118,13 +122,8 @@ end
     gradient_func inst_grad (
         .x(x), // Use the current value of x
         .offset(OFFSET),
-        .res(gradient_out) // Output of the gradient calculation
-    );
-
-    fixed_32_cmp cmp_fixed(
-        .a(x_squared_out),
-        .b(y_min),
-        .res(comp_result)    // Output 1 if y_min > x_squared_out 
+        .res(gradient_out), // Output of the gradient calculation
+        .overflow(gradient_overflow)
     );
 
     fixed_32_add_sub inst_x_minus_offset(
@@ -135,20 +134,26 @@ end
         .overflow()
     );
 
-        // Calculate y = (x-OFFSET)^2
-    fixed_32_mult inst_mult_y (
+    // Calculate y = (x-OFFSET)^2
+    fixed_64_mult inst_mult_y ( // Q47.8 format
         .a_in(x_minus_offset),
         .b_in(x_minus_offset),
         .p_out(x_squared_out),
-        .overflow()
+        .overflow(x_sqr_overflow)
+    );
+
+    fixed_56_cmp cmp_fixed(
+        .a(x_squared_out),
+        .b(y_min),
+        .res(comp_result)    // Output 1 if y_min > x_squared_out 
     );
 
     // Calculate x_diff = learning_rate * gradient
-    fixed_32_mult inst_mult_x_diff ( 
-        .a_in(learning_rate_out), 
+    fixed_32_mult inst_mult_x_diff ( // Q24.8 format
+        .a_in(learning_rate_out), //Learning rate is always less than 1
         .b_in(gradient_out), //gradient out from gradient_func
         .p_out(x_diff_out), // Output = learning_rate * gradient
-        .overflow()
+        .overflow(x_diff_overflow)
     );
 
     fixed_32_add_sub inst_initial_x_minus_offset(
@@ -160,11 +165,11 @@ end
     );
     
     // Fix the initial square calculation:
-    fixed_32_mult inst_initial_x_square (
+    fixed_64_mult inst_initial_x_square ( // Q47.8 format
         .a_in(initial_x_minus_offset),    // Use (initial_x_in - OFFSET)
         .b_in(initial_x_minus_offset),    // instead of just initial_x_in
         .p_out(initial_y_min_val),
-        .overflow()
+        .overflow(init_x_square_overflow)
     );
 
     // Calculate x = x - x_diff
