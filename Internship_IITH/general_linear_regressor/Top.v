@@ -94,6 +94,7 @@ module Top #(
             y_min <= 64'd0;
             y_min_inter <= 64'd0;        // Add this
             x_at_min_inter <= 32'd0;     // Add this
+            func_reset <= 1'b0;
             iter_count <= 0;
             done_op <= 1'b0;
         end else begin
@@ -102,6 +103,7 @@ module Top #(
                 STATE_IDLE : begin 
                     // DO NOTHING
                     done_op <= 1'b0;
+                    func_reset <= 1'b1; // Disassert Reset Of func
                 end
                 STATE_INIT : begin 
                     x_in <= x_init;
@@ -121,6 +123,8 @@ module Top #(
                     end
                 end
                 STATE_CMP_STR : begin
+                    // if (func_done)       // Trying to Prevent Race Condition of start_func being
+                                            // disasserted same cycle as reading func_done 
                     if (comp_result) begin
                         y_min <= y_min_inter;
                         x_at_min <= x_at_min_inter;
@@ -130,6 +134,7 @@ module Top #(
                 end
                 STATE_DONE : begin 
                     done_op <= 1'b1;
+                    func_reset <= 1'b0; // assert Reset Of func
                 end
             endcase
         end
@@ -138,9 +143,11 @@ module Top #(
     // MODULE CALLS
 
     // Ouputs the Gradient, value & Step size of 'function under test' at x_in 
-    func_grad_val_diff inst (
+    func_grad_val_diff  #(
+        .LEARNING_RATE(LEARNING_RATE)
+    ) inst (
         .clk(clk),
-        .rst_n(rst_n),
+        .rst_n(func_reset),     // FLASH the fucntion every iterations to prevent hold over garbage values 
         .start_func(start_func),// input level Flag signaling Start of function
         .x_in(x_in),            // X input of the function
         .gradient(),            // Gradient Output of the function at X

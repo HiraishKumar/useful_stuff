@@ -1,4 +1,6 @@
-module func_grad_val_diff(
+module func_grad_val_diff #(
+    LEARNING_RATE = 32'h00000020
+)(
     input clk,
     input rst_n,
     input start_func,
@@ -10,7 +12,6 @@ module func_grad_val_diff(
     output reg overflow
 );
     localparam TWO_H = 32'h00000002;            // Q24.8 2H = 7.8125e-3 in decimal 
-    localparam LEARNING_RATE = 32'h00000080;    // Q24.8 0.5 in decimal
     wire signed [63:0]val1;                     // Q56.8
     wire signed [63:0]val2;                     // Q56.8
     wire signed [31:0] x_in_minus_2H;           // Q24.8

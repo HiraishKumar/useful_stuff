@@ -2,9 +2,9 @@
 
 module tb_Top;
     // Parameters for the Top module (can be overridden here for testing)
-    parameter NUM_ITERATIONS = 10;
+    parameter NUM_ITERATIONS = 30;
     parameter LEARNING_RATE = 32'h00000020; // Learning Rate of 0.125 (Q24.8)
-    parameter INCREMENT = 32'h00000100;     // 1.0 Increment between test cases (Q24.8)
+    parameter INCREMENT = 32'h00020000;     // 1.0 Increment between test cases (Q24.8)
     parameter LOOP_COUNT = 10;
 
     // Inputs to the Top module
@@ -71,7 +71,7 @@ module tb_Top;
             $display("Min Y Value: %f (0x%H)", $itor(y_min) / 256.0, y_min);
             // Reset for next test
             start_op = 0;
-            test_x_val = test_x_val + INCREMENT; // Increment set default to 1.0
+            test_x_val = test_x_val - INCREMENT; // Increment set default to 1.0
             wait(done_op == 1'b0);
             // #10
         end      
