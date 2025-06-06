@@ -1,4 +1,4 @@
-module fixed_64_mult(
+module fixed_56_mult(
     input signed [31:0] a_in,    // Input operand A (Q24.8 format)
     input signed [31:0] b_in,    // Input operand B (Q24.8 format)
     output signed [55:0] p_out,  // Product P (Q47.8 format)

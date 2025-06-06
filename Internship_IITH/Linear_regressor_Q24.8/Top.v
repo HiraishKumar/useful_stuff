@@ -135,7 +135,7 @@ end
     );
 
     // Calculate y = (x-OFFSET)^2
-    fixed_64_mult inst_mult_y ( // Q47.8 format
+    fixed_56_mult inst_mult_y ( // Q47.8 format
         .a_in(x_minus_offset),
         .b_in(x_minus_offset),
         .p_out(x_squared_out),
@@ -165,7 +165,7 @@ end
     );
     
     // Fix the initial square calculation:
-    fixed_64_mult inst_initial_x_square ( // Q47.8 format
+    fixed_56_mult inst_initial_x_square ( // Q47.8 format
         .a_in(initial_x_minus_offset),    // Use (initial_x_in - OFFSET)
         .b_in(initial_x_minus_offset),    // instead of just initial_x_in
         .p_out(initial_y_min_val),
