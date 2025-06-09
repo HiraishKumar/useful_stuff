@@ -313,7 +313,17 @@
 	  assign S_AXI_RDATA = (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h0) ? slv_reg0 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h1) ? slv_reg1 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h2) ? slv_reg2 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h3) ? slv_reg3 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h4) ? slv_reg4 : 0; 
 	
     // Add user logic here
-
+	some_func func_inst(
+		.x_in(slv_reg0),
+		.y_out(slv_reg1)
+	)
 	// User logic ends
 
+	endmodule
+
+	module some_func(
+		input [C_S_AXI_DATA_WIDTH-1:0] x_in,
+		output [C_S_AXI_DATA_WIDTH-1:0] y_out
+	);
+		assign y_out = x_in >> 4;
 	endmodule

@@ -1,7 +1,7 @@
 // TODO:
 //      {DONE} Finish func_grad_val_diff.v using |||FSM||| (Ditched FSM)
 //      {DONE} Finish Top.v implementing func_grad_val_diff
-//      Write Testbech for Top.v
+//      {DONE} Write Testbech for Top.v
 // TODO AFTER:
 //      Write synthesis in vivado 
 
@@ -91,9 +91,9 @@ module Top #(
             current_state <= STATE_IDLE;
             x_in <= 32'd0;
             x_at_min <= 32'd0;
-            y_min <= 64'd0;
-            y_min_inter <= 64'd0;        // Add this
             x_at_min_inter <= 32'd0;     // Add this
+            y_min <= 64'h7FFFFFFFFFFFFFFF;
+            y_min_inter <= 64'h7FFFFFFFFFFFFFFF;       // Add this
             func_reset <= 1'b0;
             iter_count <= 0;
             done_op <= 1'b0;
@@ -127,7 +127,7 @@ module Top #(
                                             // disasserted same cycle as reading func_done 
                     if (comp_result) begin
                         y_min <= y_min_inter;
-                        x_at_min <= x_at_min_inter;
+                        x_at_min <= x_at_min_inter; // could be changed to  //x_at_min <= x_in;
                     end
                     x_in <= x_next_val;
                     start_func <= 1'b1;

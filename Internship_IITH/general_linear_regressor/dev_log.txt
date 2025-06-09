@@ -1,0 +1,9 @@
+9 MAY 2025
+-BUG 1
+    Observed - Values of x_at_min and y_min lock up for some values of initial_x 
+    and propagate through to the next iteration. 
+    - This dosent happen if the uut itself is reset after prior to every iteration
+    - I think its something to do with the improper intialization of internal 
+    variabels after iteration  
+    - I need to figure out which of them are not geting intialized properly
+        - I think maybe it x_at_min_inter and y_min_inter

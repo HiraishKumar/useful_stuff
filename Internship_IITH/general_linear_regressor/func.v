@@ -44,7 +44,7 @@ always_ff @(posedge clk, negedge rst_n) begin
         curr_state  <= STATE_IDLE;
         func_done   <= 1'b0;
         x_val       <= 32'd0;   
-        y_out       <= 64'd0;
+        y_out       <= MINUS_ONE; 
         compute_done <= 1'b0;
         overflow    <= 1'b0;
     end else begin 

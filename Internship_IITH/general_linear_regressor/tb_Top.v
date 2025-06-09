@@ -2,10 +2,10 @@
 
 module tb_Top;
     // Parameters for the Top module (can be overridden here for testing)
-    parameter NUM_ITERATIONS = 30;
-    parameter LEARNING_RATE = 32'h00000020; // Learning Rate of 0.125 (Q24.8)
-    parameter INCREMENT = 32'h00020000;     // 1.0 Increment between test cases (Q24.8)
-    parameter LOOP_COUNT = 10;
+    parameter NUM_ITERATIONS = 50;
+    parameter LEARNING_RATE = 32'h0000001A; // Learning Rate of 0.125 (Q24.8)
+    parameter INCREMENT = 32'h00000100;     // 1.0 Increment between test cases (Q24.8)
+    parameter LOOP_COUNT = 1;
 
     // Inputs to the Top module
     reg clk;
@@ -49,18 +49,19 @@ module tb_Top;
         // Initialize inputs
         rst_n = 0; // Assert reset
         start_op = 0;
-        initial_x_in = 32'b0;
-        test_x_val = 32'h00000000;  // 0.0 in decimal
+        initial_x_in = 32'd0;
+        test_x_val = 32'hD0000000;  // 0.0 in decimal
 
         $display("---------------------------------------------------------");
         $display("Starting Testbench for Fixed-Point Gradient Descent");
         $display("Parameters: NUM_ITERATIONS = %0d, LEARNING_RATE = %f",
             NUM_ITERATIONS, $itor(LEARNING_RATE) / 256.0);
         $display("---------------------------------------------------------");
-        #20 rst_n = 1; // Deassert reset        
+        #20 ;        
 
         for(i = 0; i < LOOP_COUNT; i = i + 1 ) begin
             initial_x_in = test_x_val; // Q24.8 (2's complement)
+            rst_n = 1; // Deassert reset 
             start_op = 1;
             // #20;
 
@@ -71,7 +72,8 @@ module tb_Top;
             $display("Min Y Value: %f (0x%H)", $itor(y_min) / 256.0, y_min);
             // Reset for next test
             start_op = 0;
-            test_x_val = test_x_val - INCREMENT; // Increment set default to 1.0
+            rst_n = 0;
+            test_x_val = test_x_val + INCREMENT; // Increment set default to 1.0
             wait(done_op == 1'b0);
             // #10
         end      
