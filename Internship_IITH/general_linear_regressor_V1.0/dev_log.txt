@@ -1,0 +1,36 @@
+9 MAY 2025
+-BUG 1
+    Observed - Values of x_at_min and y_min lock up for some values of initial_x 
+    and propagate through to the next iteration. 
+    - This dosent happen if the uut itself is reset after prior to every iteration
+    - I think its something to do with the improper intialization of internal 
+    variabels after iteration  
+    - I need to figure out which of them are not geting intialized properly
+        - I think maybe it x_at_min_inter and y_min_inter
+
+11 MAY 2025
+-After strugelling with the Vivado software to get my block diagram compiled, it
+finally did
+- The error seemed to have been:
+    - long path to verilog design sources which went over 80 characters
+    - "Is Include" in the file groups of the grad_descent Module Packaging,
+    do not explicitly Include the source files and let the packager do it automatically
+
+12 MAY 2025
+-I created the Bitstream for 2 more versions,
+    - Due to the combinatorial Multiplications, a lot of delay was added in the 
+    synthesized design meaning it couldnt be run at the rate 100 Mhz speed, and was 
+    down graded to run at 5 Mhz instead.
+    - In V_1 i ran the whole of PL (interconnect, reset and uut) at 5 Mhz
+    - In V_2 i ran the uut at 5 Mhz and everything else at 100 MHz and used the 
+    interconnect to cross clock domains
+- Now that the project is synthesized, i can call this v1.0 progect over and completed.
+i have been given a different polynomial to simulate, but being of the 4th order my data
+width is simply not enough.
+- In v2.0 of this code i would like to:
+    - Add sequntial Multiplications
+    - Make the the default function a 5th order polynomial
+    - Make it so that only the coefficents need to be changed when defining the 
+    polynomial 
+
+----------------------------------------COMPLETED-----------------------------------------

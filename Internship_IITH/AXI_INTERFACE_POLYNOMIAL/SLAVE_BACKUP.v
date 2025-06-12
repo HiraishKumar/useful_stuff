@@ -1,7 +1,7 @@
 
 `timescale 1 ns / 1 ps
 
-	module Polynom_eval_slave_lite_v1_0_S00_AXI #
+	module Grad_descent_slave_lite_v1_0_S00_AXI #
 	(
 		// Users to add parameters here
 
@@ -102,12 +102,13 @@
 	//----------------------------------------------
 	//-- Signals for user logic register space example
 	//------------------------------------------------
-	//-- Number of Slave Registers 5
+	//-- Number of Slave Registers 6
 	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg0;
 	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg1;
 	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg2;
 	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg3;
 	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg4;
+	reg [C_S_AXI_DATA_WIDTH-1:0]	slv_reg5;
 	integer	 byte_index;
 
 	// I/O Connections assignments
@@ -205,11 +206,12 @@
 	begin
 	  if ( S_AXI_ARESETN == 1'b0 )
 	    begin
-	      slv_reg0 <= 0; // Control Register-> start_op, done_op
-	      slv_reg1 <= 0; // x_init
-	      slv_reg2 <= 0; // y_min lower
-	      slv_reg3 <= 0; // y_min upper
-	      slv_reg4 <= 0; // x_at_min
+	      slv_reg0 <= 0;
+	      slv_reg1 <= 0;
+	      slv_reg2 <= 0;
+	      slv_reg3 <= 0;
+	      slv_reg4 <= 0;
+	      slv_reg5 <= 0;
 	    end 
 	  else begin
 	    if (S_AXI_WVALID)
@@ -250,12 +252,20 @@
 	                // Slave register 4
 	                slv_reg4[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
 	              end  
+	          3'h5:
+	            for ( byte_index = 0; byte_index <= (C_S_AXI_DATA_WIDTH/8)-1; byte_index = byte_index+1 )
+	              if ( S_AXI_WSTRB[byte_index] == 1 ) begin
+	                // Respective byte enables are asserted as per write strobes 
+	                // Slave register 5
+	                slv_reg5[(byte_index*8) +: 8] <= S_AXI_WDATA[(byte_index*8) +: 8];
+	              end  
 	          default : begin
 	                      slv_reg0 <= slv_reg0;
 	                      slv_reg1 <= slv_reg1;
 	                      slv_reg2 <= slv_reg2;
 	                      slv_reg3 <= slv_reg3;
 	                      slv_reg4 <= slv_reg4;
+	                      slv_reg5 <= slv_reg5;
 	                    end
 	        endcase
 	      end
@@ -310,24 +320,19 @@
 	          end                                       
 	        end                                         
 	// Implement memory mapped register select and read logic generation
-	  assign S_AXI_RDATA = (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h0) ? slv_reg0 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h1) ? slv_reg1 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h2) ? slv_reg2 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h3) ? slv_reg3 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h4) ? slv_reg4 : 0; 
+	  assign S_AXI_RDATA = (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h0) ? slv_reg0 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h1) ? slv_reg1 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h2) ? slv_reg2 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h3) ? slv_reg3 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h4) ? slv_reg4 : (axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] == 3'h5) ? slv_reg5 : 0; 
+	// Add user logic here
 	
-    // Add user logic here
+	// Perosnal Note
+	
+	// Total of 6 Registers 
+	//     slv_reg0 StartOp    -> Write Only
+	//     slv_reg1 x_init     -> Write Only
+	//     slv_reg2 x_at_min   -> Read Only
+	//     slv_reg3 y_min_lower-> Read Only
+	//     slv_reg4 y_min_upper-> Read Only
+	//     slv_reg5 DoneOp     -> Read Only
 
 	// User logic ends
 
 	endmodule
-
-module gradient_descent #(
-    NUM_ITERATIONS = 10,
-    LEARNING_RATE = 32'h00000080
-) (
-    input clk,
-    input rst_n,
-    input start_op,
-    input signed [31:0] x_init,
-    output reg signed [31:0] x_at_min,
-    output reg signed [63:0] y_min,
-    output reg done_op
-);
-endmodule

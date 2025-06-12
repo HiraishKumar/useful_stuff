@@ -59,24 +59,44 @@ module tb_Top;
         $display("---------------------------------------------------------");
         #20 ;        
 
-        for(i = 0; i < LOOP_COUNT; i = i + 1 ) begin
-            initial_x_in = test_x_val; // Q24.8 (2's complement)
-            rst_n = 1; // Deassert reset 
-            start_op = 1;
-            // #20;
-
-            wait(done_op == 1'b1);
-            $display("\n--- Test Case %0d: Initial x = %f (Q24.8) ---", i, $itor(test_x_val) / 256.0);
-            $display("Initial X: %f", $itor(test_x_val) / 256.0);
-            $display("Final X at Min: %f (0x%H)", $itor(x_at_min) / 256.0, x_at_min);
-            $display("Min Y Value: %f (0x%H)", $itor(y_min) / 256.0, y_min);
-            // Reset for next test
-            start_op = 0;
-            rst_n = 0;
-            test_x_val = test_x_val + INCREMENT; // Increment set default to 1.0
-            wait(done_op == 1'b0);
-            // #10
-        end      
+        initial_x_in = test_x_val; // Q24.8 (2's complement)
+        rst_n = 1; // Deassert reset 
+        start_op = 1;
+        // #20;
+        wait(done_op == 1'b1);
+        $display("\n--- Test Case %0d: Initial x = %f (Q24.8) ---", i, $itor(test_x_val) / 256.0);
+        $display("Initial X: %f", $itor(test_x_val) / 256.0);
+        $display("Final X at Min: %f (0x%H)", $itor(x_at_min) / 256.0, x_at_min);
+        $display("Min Y Value: %f (0x%H)", $itor(y_min) / 256.0, y_min);
+        // Reset for next test
+        // start_op = 0;
+        // rst_n = 0;
+        // test_x_val = test_x_val + INCREMENT; // Increment set default to 1.0
+        // wait(done_op == 1'b0);
         $finish; // End simulation
     end
 endmodule
+
+
+
+
+
+
+        // for(i = 0; i < LOOP_COUNT; i = i + 1 ) begin
+        //     initial_x_in = test_x_val; // Q24.8 (2's complement)
+        //     rst_n = 1; // Deassert reset 
+        //     start_op = 1;
+        //     // #20;
+
+        //     wait(done_op == 1'b1);
+        //     $display("\n--- Test Case %0d: Initial x = %f (Q24.8) ---", i, $itor(test_x_val) / 256.0);
+        //     $display("Initial X: %f", $itor(test_x_val) / 256.0);
+        //     $display("Final X at Min: %f (0x%H)", $itor(x_at_min) / 256.0, x_at_min);
+        //     $display("Min Y Value: %f (0x%H)", $itor(y_min) / 256.0, y_min);
+        //     // Reset for next test
+        //     start_op = 0;
+        //     rst_n = 0;
+        //     test_x_val = test_x_val + INCREMENT; // Increment set default to 1.0
+        //     wait(done_op == 1'b0);
+        //     // #10
+        // end      
