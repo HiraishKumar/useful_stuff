@@ -1,0 +1,7 @@
+- GOAL OF PROGECT:
+    - Expand Default polynomial to the 5th order
+    - Add Sequential Multiply 
+    - Imporve Gradient Descemt Algo using LMS.
+
+13 MAY 2025:
+    
