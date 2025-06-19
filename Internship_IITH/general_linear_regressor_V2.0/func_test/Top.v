@@ -1,4 +1,4 @@
-module func #(
+module Top#(
     A0 = 32'h00000100,   //1.0 in decimal Q24.8 format
     A1 = 32'h00000000,  //0.0 in decimal Q24.8 format
     A2 = 32'hFFFFFF80,   //-0.5 in decimal Q24.8 format

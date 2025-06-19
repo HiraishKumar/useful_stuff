@@ -5,7 +5,7 @@ module func_grad_val_diff #(
     input rst_n,
     input start_func,     
     input signed [31:0] x_in, //(Q24.8 fixed-point format)
-    output reg signed [63:0] gradient, //(Q56.8 fixed-point format)
+    output reg signed [127:0] gradient, //(Q56.8 fixed-point format)
     output reg signed [63:0] value,    //(Q56.8 fixed-point format)
     output reg signed [31:0] x_diff_out, // Change in x (LEARNING_RATE * gradient) (Q24.8 fixed-point format)
     output reg func_done,  
@@ -14,14 +14,14 @@ module func_grad_val_diff #(
 
     localparam TWO_H = 32'h00000002; // Q24.8 fixed-point format (decimal 7.8125e-3 if Q0.31, but here Q24.8 means 2 / 2^8 = 2/256)
     localparam GRADatZERO = 32'h00000400;  // Gradeint of the function at zero (where it is after reset)
-    wire signed [63:0] y_out1_func; // Output of the first function (f(x_in))
-    wire signed [63:0] y_out2_func; // Output of the second function (f(x_in - 2H))
+    wire signed [127:0] y_out1_func; // Output of the first function (f(x_in))
+    wire signed [127:0] y_out2_func; // Output of the second function (f(x_in - 2H))
 
-    reg signed [63:0] val1_reg; // Stores the completed f(x_in)
-    reg signed [63:0] val2_reg; // Stores the completed f(x_in - 2H)
+    reg signed [127:0] val1_reg; // Stores the completed f(x_in)
+    reg signed [127:0] val2_reg; // Stores the completed f(x_in - 2H)
 
     wire signed [31:0] x_in_minus_2H;
-    wire signed [63:0] gradient_calc;
+    wire signed [127:0] gradient_calc;
     wire signed [31:0] x_diff;
     wire func1_done;
     wire func2_done;
@@ -54,8 +54,8 @@ module func_grad_val_diff #(
 
     always @(posedge clk, negedge rst_n) begin
         if (!rst_n) begin
-            val1_reg <= 64'd0; // Reset registered value
-            val2_reg <= 64'd0; // Reset registered value
+            val1_reg <= 128'd0; // Reset registered value
+            val2_reg <= 128'd0; // Reset registered value
         end else begin
             if (func1_done) begin
                 val1_reg <= y_out1_func; // Capture f(x_in) when its computation is done
@@ -66,7 +66,10 @@ module func_grad_val_diff #(
         end
     end
 
-    assign gradient_calc = (val1_reg - val2_reg) << 7; // Result is Q56.8
+    assign gradient_calc = (val1_reg - val2_reg) << 7; // Result is Q120.8
+
+    // Instead of a standard multiplier i have to set up a special module that can 
+    // take in a 128 bit gradient and return a 32 bit clamped x diff 
 
     fixed_32_mult inst_diff(
         .a_in(LEARNING_RATE),                   // Multiplicand A (Q24.8)

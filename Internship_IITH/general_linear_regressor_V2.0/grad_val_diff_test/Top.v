@@ -1,4 +1,4 @@
-module func_grad_val_diff #(
+module Top #(
     parameter LEARNING_RATE = 32'h00000020 // Parameter for the learning rate
 )(
     input clk,            
@@ -11,6 +11,18 @@ module func_grad_val_diff #(
     output reg func_done,  
     output reg overflow    
 );
+    localparam IDLE     = 3'b000;
+    localparam INIT     = 3'b001;
+    localparam COMP_1   = 3'b010;
+    localparam COMP_2   = 3'b011;
+    localparam COMP_3   = 3'b100;
+    localparam COMP_4   = 3'b101;
+    localparam DONE     = 3'b110;
+
+
+    
+
+
 
     localparam TWO_H = 32'h00000002; // Q24.8 fixed-point format (decimal 7.8125e-3 if Q0.31, but here Q24.8 means 2 / 2^8 = 2/256)
     localparam GRADatZERO = 32'h00000400;  // Gradeint of the function at zero (where it is after reset)

@@ -8,7 +8,7 @@
 
 
 module Top #(
-    NUM_ITERATIONS = 10,
+    NUM_ITERATIONS = 15,
     LEARNING_RATE = 32'h00000080
 ) (
     input clk,

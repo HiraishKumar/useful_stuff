@@ -4,4 +4,12 @@
     - Imporve Gradient Descemt Algo using LMS.
 
 13 MAY 2025:
-    
+    - Pipelined the 4th order polynomial for 5 Stage Computation 
+    - wrote a test bench for the  4th order polynomial
+    - need to implement a 128 * 32 bit Multiplier for cont multiplication
+    - I would like to enjoy my weekend tommorow so we'll see 
+
+16 MAY 2025:
+    - {DONE} Make a 128 * 128 = 128 bit fixed point multiplier
+    - {DONE} Test and implement it in the func Module
+    - {DONE} Run Tests on the Func Module
