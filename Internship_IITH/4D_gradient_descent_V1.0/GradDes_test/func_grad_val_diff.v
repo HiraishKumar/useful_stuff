@@ -1,5 +1,8 @@
-module Top #(
-    parameter LEARNING_RATE = 32'h00000020 // Q24.8 Parameter for the learning rate
+module func_grad_val_diff #(
+    parameter LEARNING_RATE_A = 32'h00000010, // Learning Rate of 0.125 (Q24.8)
+    parameter LEARNING_RATE_B = 32'h00000010, // Learning Rate of 0.125 (Q24.8)
+    parameter LEARNING_RATE_C = 32'h00000010, // Learning Rate of 0.125 (Q24.8)
+    parameter LEARNING_RATE_D = 32'h00000010 // Learning Rate of 0.125 (Q24.8)
 )(
     input clk,            
     input rst_n,
@@ -9,10 +12,10 @@ module Top #(
     input signed [15:0] c_in,           //(Q8.8 fixed-point format)
     input signed [15:0] d_in,           //(Q8.8 fixed-point format)
     output reg signed [31:0] value,     //(Q24.8 fixed-point format)
-    output reg signed [15:0] a_diff_out, // Change in a (LEARNING_RATE * gradient) (Q8.8 fixed-point format)
-    output reg signed [15:0] b_diff_out, // Change in b (LEARNING_RATE * gradient) (Q8.8 fixed-point format)
-    output reg signed [15:0] c_diff_out, // Change in c (LEARNING_RATE * gradient) (Q8.8 fixed-point format)
-    output reg signed [15:0] d_diff_out, // Change in d (LEARNING_RATE * gradient) (Q8.8 fixed-point format)
+    output reg signed [15:0] a_diff_out, // Change in a (LEARNING_RATE_A * gradient) (Q8.8 fixed-point format)
+    output reg signed [15:0] b_diff_out, // Change in b (LEARNING_RATE_B * gradient) (Q8.8 fixed-point format)
+    output reg signed [15:0] c_diff_out, // Change in c (LEARNING_RATE_C * gradient) (Q8.8 fixed-point format)
+    output reg signed [15:0] d_diff_out, // Change in d (LEARNING_RATE_D * gradient) (Q8.8 fixed-point format)
     output reg func_done,  
     output reg overflow    
 );
@@ -229,28 +232,28 @@ module Top #(
 
     fixed_32_capped_mult calc_a_diff(       // Calculate a_grad * LEARNING RATE capped between -128.0 and 127.99609375
         .a_in(a_grad),                    // Q24.8 reg input
-        .b_in(LEARNING_RATE),    // Q24.8 const input                
+        .b_in(LEARNING_RATE_A),    // Q24.8 const input                
         .p_out(a_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
         .overflow(overflow_mult_a),
         .underflow_q(underflow_mult_a)
     ); 
     fixed_32_capped_mult calc_b_diff(       // Calculate b_grad * LEARNING RATE capped between -128.0 and 127.99609375
         .a_in(b_grad),                    // Q24.8 reg input
-        .b_in(LEARNING_RATE),    // Q24.8 const input                
+        .b_in(LEARNING_RATE_B),    // Q24.8 const input                
         .p_out(b_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
         .overflow(overflow_mult_b),
         .underflow_q(underflow_mult_b)
     );
     fixed_32_capped_mult calc_c_diff(       // Calculate c_grad * LEARNING RATE capped between -128.0 and 127.99609375
         .a_in(c_grad),                    // Q24.8 reg input
-        .b_in(LEARNING_RATE),    // Q24.8 const input                
+        .b_in(LEARNING_RATE_C),    // Q24.8 const input                
         .p_out(c_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
         .overflow(overflow_mult_c),
         .underflow_q(underflow_mult_c)
     );
     fixed_32_capped_mult calc_d_diff(       // Calculate d_grad * LEARNING RATE capped between -128.0 and 127.99609375
         .a_in(d_grad),                    // Q24.8 reg input
-        .b_in(LEARNING_RATE),    // Q24.8 const input                
+        .b_in(LEARNING_RATE_D),    // Q24.8 const input                
         .p_out(d_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
         .overflow(overflow_mult_d),
         .underflow_q(underflow_mult_d)

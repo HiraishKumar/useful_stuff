@@ -1,0 +1,136 @@
+#! /c/Source/iverilog-install/bin/vvp
+:ivl_version "12.0 (devel)" "(s20150603-1539-g2693dd32b)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "C:\iverilog\lib\ivl\system.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_sys.vpi";
+:vpi_module "C:\iverilog\lib\ivl\vhdl_textio.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2005_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\va_math.vpi";
+:vpi_module "C:\iverilog\lib\ivl\v2009.vpi";
+S_0000024cd8497810 .scope package, "$unit" "$unit" 2 1;
+ .timescale 0 0;
+S_0000024cd84994d0 .scope module, "Top_tb" "Top_tb" 3 3;
+ .timescale -9 -12;
+v0000024cd84ff3a0_0 .var/s "a_in_tb", 31 0;
+v0000024cd84ff120_0 .var/s "b_in_tb", 31 0;
+v0000024cd84ff1c0_0 .net "overflow_out_tb", 0 0, L_0000024cd84fea40;  1 drivers
+v0000024cd84fee00_0 .net/s "p_out_tb", 15 0, L_0000024cd84fed60;  1 drivers
+v0000024cd84ff260_0 .net "underflow_out_tb", 0 0, L_0000024cd84feb80;  1 drivers
+S_0000024cd8499930 .scope begin, "$unm_blk_1" "$unm_blk_1" 3 24, 3 24 0, S_0000024cd84994d0;
+ .timescale -9 -12;
+v0000024cd8499660_0 .var/i "i", 31 0;
+S_0000024cd849b3c0 .scope module, "uut" "Top" 3 15, 4 1 0, S_0000024cd84994d0;
+ .timescale 0 0;
+    .port_info 0 /INPUT 32 "a_in";
+    .port_info 1 /INPUT 32 "b_in";
+    .port_info 2 /OUTPUT 16 "p_out";
+    .port_info 3 /OUTPUT 1 "overflow";
+    .port_info 4 /OUTPUT 1 "underflow_q";
+P_0000024cd8495330 .param/l "FRACT_BITS" 1 4 8, +C4<00000000000000000000000000001000>;
+P_0000024cd8495368 .param/l "Q8_8_MAX" 1 4 10, +C4<0111111111111111>;
+P_0000024cd84953a0 .param/l "Q8_8_MAX_EXT" 1 4 13, +C4<0000000000000000000000000000000000000000000000000111111111111111>;
+P_0000024cd84953d8 .param/l "Q8_8_MIN" 1 4 11, +C4<1000000000000000>;
+P_0000024cd8495410 .param/l "Q8_8_MIN_EXT" 1 4 14, +C4<1111111111111111111111111111111111111111111111111000000000000000>;
+v0000024cd83e6450_0 .net/s *"_ivl_0", 63 0, L_0000024cd84ff440;  1 drivers
+L_0000024cd84ff8c8 .functor BUFT 1, C4<0000000000000000000000000000000000000000000000000111111111111111>, C4<0>, C4<0>, C4<0>;
+v0000024cd83e6820_0 .net/2s *"_ivl_10", 63 0, L_0000024cd84ff8c8;  1 drivers
+L_0000024cd84ff910 .functor BUFT 1, C4<1111111111111111111111111111111111111111111111111000000000000000>, C4<0>, C4<0>, C4<0>;
+v0000024cd83ebf40_0 .net/2s *"_ivl_14", 63 0, L_0000024cd84ff910;  1 drivers
+L_0000024cd84ff958 .functor BUFT 1, C4<0111111111111111>, C4<0>, C4<0>, C4<0>;
+v0000024cd84a4cd0_0 .net/2u *"_ivl_18", 15 0, L_0000024cd84ff958;  1 drivers
+v0000024cd8497e40_0 .net/s *"_ivl_2", 63 0, L_0000024cd84ff800;  1 drivers
+L_0000024cd84ff9a0 .functor BUFT 1, C4<1000000000000000>, C4<0>, C4<0>, C4<0>;
+v0000024cd83eb1e0_0 .net/2u *"_ivl_20", 15 0, L_0000024cd84ff9a0;  1 drivers
+v0000024cd83e9ca0_0 .net *"_ivl_23", 15 0, L_0000024cd84fec20;  1 drivers
+v0000024cd84ff080_0 .net *"_ivl_24", 15 0, L_0000024cd84fecc0;  1 drivers
+v0000024cd84ff6c0_0 .net *"_ivl_8", 55 0, L_0000024cd84feae0;  1 drivers
+v0000024cd84ff4e0_0 .net/s "a_in", 31 0, v0000024cd84ff3a0_0;  1 drivers
+v0000024cd84ff580_0 .net/s "b_in", 31 0, v0000024cd84ff120_0;  1 drivers
+v0000024cd84ff620_0 .net "overflow", 0 0, L_0000024cd84fea40;  alias, 1 drivers
+v0000024cd84feea0_0 .net/s "p_out", 15 0, L_0000024cd84fed60;  alias, 1 drivers
+v0000024cd84fefe0_0 .net/s "p_raw_shifted", 63 0, L_0000024cd84fe9a0;  1 drivers
+v0000024cd84ff760_0 .net/s "product_full", 63 0, L_0000024cd84fe900;  1 drivers
+v0000024cd84ff300_0 .net "underflow_q", 0 0, L_0000024cd84feb80;  alias, 1 drivers
+L_0000024cd84ff440 .extend/s 64, v0000024cd84ff3a0_0;
+L_0000024cd84ff800 .extend/s 64, v0000024cd84ff120_0;
+L_0000024cd84fe900 .arith/mult 64, L_0000024cd84ff440, L_0000024cd84ff800;
+L_0000024cd84feae0 .part L_0000024cd84fe900, 8, 56;
+L_0000024cd84fe9a0 .extend/s 64, L_0000024cd84feae0;
+L_0000024cd84fea40 .cmp/gt.s 64, L_0000024cd84fe9a0, L_0000024cd84ff8c8;
+L_0000024cd84feb80 .cmp/gt.s 64, L_0000024cd84ff910, L_0000024cd84fe9a0;
+L_0000024cd84fec20 .part L_0000024cd84fe9a0, 0, 16;
+L_0000024cd84fecc0 .functor MUXZ 16, L_0000024cd84fec20, L_0000024cd84ff9a0, L_0000024cd84feb80, C4<>;
+L_0000024cd84fed60 .functor MUXZ 16, L_0000024cd84fecc0, L_0000024cd84ff958, L_0000024cd84fea40, C4<>;
+    .scope S_0000024cd84994d0;
+T_0 ;
+    %fork t_1, S_0000024cd8499930;
+    %jmp t_0;
+    .scope S_0000024cd8499930;
+t_1 ;
+    %vpi_call/w 3 28 "$dumpfile", "Top_tb.vcd" {0 0 0};
+    %vpi_call/w 3 29 "$dumpvars", 32'sb00000000000000000000000000000000, S_0000024cd84994d0 {0 0 0};
+    %vpi_call/w 3 31 "$display", "---------------------------------------------------------" {0 0 0};
+    %vpi_call/w 3 32 "$display", "--Starting Testbench for Capped Fixed-Point Multiplier---" {0 0 0};
+    %vpi_call/w 3 33 "$display", "---------------------------------------------------------" {0 0 0};
+    %pushi/vec4 16777216, 0, 32;
+    %store/vec4 v0000024cd84ff3a0_0, 0, 32;
+    %pushi/vec4 256, 0, 32;
+    %store/vec4 v0000024cd84ff3a0_0, 0, 32;
+    %pushi/vec4 256, 0, 32;
+    %store/vec4 v0000024cd84ff120_0, 0, 32;
+    %delay 10000, 0;
+    %pushi/vec4 1, 0, 32;
+    %store/vec4 v0000024cd8499660_0, 0, 32;
+T_0.0 ;
+    %load/vec4 v0000024cd8499660_0;
+    %cmpi/s 11, 0, 32;
+    %jmp/0xz T_0.1, 5;
+    %vpi_func/r 3 48 "$itor", v0000024cd84ff3a0_0 {0 0 0};
+    %pushi/real 1073741824, 4074; load=256.000
+    %div/wr;
+    %vpi_func/r 3 48 "$itor", v0000024cd84ff120_0 {0 0 0};
+    %pushi/real 1073741824, 4074; load=256.000
+    %div/wr;
+    %vpi_call/w 3 47 "$display", "\012------- Test Case %0d: Input a = %f, b = %f (Q24.8) ------", v0000024cd8499660_0, W<1,r>, W<0,r> {0 2 0};
+    %vpi_func/r 3 49 "$itor", v0000024cd84ff3a0_0 {0 0 0};
+    %pushi/real 1073741824, 4074; load=256.000
+    %div/wr;
+    %vpi_call/w 3 49 "$display", "a_in : %f (0x%H)", W<0,r>, v0000024cd84ff3a0_0 {0 1 0};
+    %vpi_func/r 3 50 "$itor", v0000024cd84ff120_0 {0 0 0};
+    %pushi/real 1073741824, 4074; load=256.000
+    %div/wr;
+    %vpi_call/w 3 50 "$display", "b_in : %f (0x%H)", W<0,r>, v0000024cd84ff120_0 {0 1 0};
+    %vpi_func/r 3 51 "$itor", v0000024cd84fee00_0 {0 0 0};
+    %pushi/real 1073741824, 4074; load=256.000
+    %div/wr;
+    %vpi_call/w 3 51 "$display", "p_out : %f (0x%H)", W<0,r>, v0000024cd84fee00_0 {0 1 0};
+    %vpi_call/w 3 52 "$display", "Overflow: %b, Underflow: %b", v0000024cd84ff1c0_0, v0000024cd84ff260_0 {0 0 0};
+    %load/vec4 v0000024cd84ff3a0_0;
+    %subi 2048, 0, 32;
+    %store/vec4 v0000024cd84ff3a0_0, 0, 32;
+    %load/vec4 v0000024cd84ff120_0;
+    %addi 2048, 0, 32;
+    %store/vec4 v0000024cd84ff120_0, 0, 32;
+    %delay 10000, 0;
+    %load/vec4 v0000024cd8499660_0;
+    %addi 1, 0, 32;
+    %store/vec4 v0000024cd8499660_0, 0, 32;
+    %jmp T_0.0;
+T_0.1 ;
+    %vpi_call/w 3 63 "$display", "---------------------------------------------------------" {0 0 0};
+    %vpi_call/w 3 64 "$display", "-------Testbench Finished-------" {0 0 0};
+    %vpi_call/w 3 65 "$display", "---------------------------------------------------------" {0 0 0};
+    %vpi_call/w 3 66 "$finish" {0 0 0};
+    %end;
+    .scope S_0000024cd84994d0;
+t_0 %join;
+    %end;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 5;
+    "N/A";
+    "<interactive>";
+    "-";
+    "Top_tb.v";
+    "Top.v";

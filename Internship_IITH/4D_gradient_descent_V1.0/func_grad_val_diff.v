@@ -1,4 +1,4 @@
-module Top #(
+module func_grad_val_diff #(
     parameter LEARNING_RATE = 32'h00000020 // Q24.8 Parameter for the learning rate
 )(
     input clk,            

@@ -1,0 +1,118 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Sat Jun 28 08:25:24 2025
+[*]
+[dumpfile] "D:\CODE\useful_stuff\Internship_IITH\4D_gradient_descent_V1.0\GradDes_test\Top_tb.vcd"
+[dumpfile_mtime] "Sat Jun 28 08:17:48 2025"
+[dumpfile_size] 1794860
+[savefile] "D:\CODE\useful_stuff\Internship_IITH\4D_gradient_descent_V1.0\GradDes_test\Top_tb.gtkw"
+[timestart] 0
+[size] 1920 1009
+[pos] -1 -1
+*-19.000000 1145000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] Top_tb.
+[treeopen] Top_tb.uut.
+[treeopen] Top_tb.uut.grad_val_diff.
+[sst_width] 260
+[signals_width] 270
+[sst_expanded] 1
+[sst_vpaned_height] 297
+@28
+Top_tb.clk
+@420
+Top_tb.i
+@28
+Top_tb.start_op
+Top_tb.rst_n
+@40000420
+[fpshift_count] 8
+Top_tb.uut.z_min[31:0]
+[fpshift_count] 8
+Top_tb.uut.z_min_inter[31:0]
+[fpshift_count] 8
+Top_tb.uut.check_conv.UPPER
+[fpshift_count] 8
+Top_tb.uut.check_conv.diff[31:0]
+[fpshift_count] 8
+Top_tb.uut.check_conv.LOWER
+@28
+Top_tb.uut.check_conv.converged
+Top_tb.uut.check_conv.greater_than
+Top_tb.uut.check_conv.less_than
+@c08024
+Top_tb.uut.iter_count[5:0]
+@28
+(0)Top_tb.uut.iter_count[5:0]
+(1)Top_tb.uut.iter_count[5:0]
+(2)Top_tb.uut.iter_count[5:0]
+(3)Top_tb.uut.iter_count[5:0]
+(4)Top_tb.uut.iter_count[5:0]
+(5)Top_tb.uut.iter_count[5:0]
+@1401200
+-group_end
+@20000
+-
+-
+-
+@40008420
+[fpshift_count] 8
+Top_tb.uut.d_at_min[15:0]
+@20000
+-
+-
+-
+@40008420
+[fpshift_count] 8
+Top_tb.uut.d_at_min_inter[15:0]
+@20000
+-
+-
+-
+@28
+Top_tb.uut.comp_result
+@40008421
+[fpshift_count] 8
+Top_tb.uut.d_in[15:0]
+@20000
+-
+-
+@40008420
+[fpshift_count] 8
+Top_tb.uut.d_diff_out[15:0]
+@20000
+-
+-
+@40008420
+[fpshift_count] 8
+Top_tb.uut.d_next_val[15:0]
+@20000
+-
+-
+-
+@40008420
+[fpshift_count] 8
+Top_tb.uut.d_init[15:0]
+@20000
+-
+-
+@22
+Top_tb.uut.grad_val_diff.d_grad[31:0]
+@40008420
+[fpshift_count] 8
+Top_tb.uut.grad_val_diff.d_grad[31:0]
+@20000
+-
+-
+@40008420
+[fpshift_count] 8
+Top_tb.uut.grad_val_diff.d_diff[15:0]
+@20000
+-
+-
+@22
+Top_tb.uut.grad_val_diff.d_diff[15:0]
+@40000420
+[fpshift_count] 8
+Top_tb.uut.grad_val_diff.LEARNING_RATE
+[pattern_trace] 1
+[pattern_trace] 0

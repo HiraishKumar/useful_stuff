@@ -1,3 +1,94 @@
 19 JUNE 2025
     NOTE: check what happens to func_done signal in func.v if start_op remains High
         - Ideally it should remain high as long as start_op is High 
+    ANS: it DOES
+
+20 JUNE 2025
+    {DONE} - Write a Module that truncates 16 bit overflow to max val, 
+    and under flow to minval, without wrap around.
+    {FIXED} - Algorithm Problem-:
+        - i need to check the logic i was using to calculate the gradient,
+        wether it even works or not 
+        specifically this part:
+            limit of function at (f(a_in - 2h, b_in, c_in, d_in))
+            limit of function at (f(a_in, b_in - 2h, c_in, d_in))
+            limit of function at (f(a_in, b_in, c_in - 2h, d_in))
+            limit of function at (f(a_in, b_in, c_in, d_in - 2h))  
+        {SOLN} :
+        i didnt make the test bench output variable signed in the output,
+        so the negetive numbers were showing up as very large unsigned numbers.
+
+23 JUNE 2025
+    -Implement Bounding everywhere i can:
+        -func
+        -func_grad_val_diff
+        -Iteratation Module (Top)
+    Locations:
+        Func_grad_val_diff: {Not Needed}
+            the value change is too small to be noticeable
+        Func: {Not Needed}
+            The Function will always stay in bounds, 8.8 input and 24.8 output
+    TODO:
+        {DONE} make a signed Q8.8 capped step calculator
+        - This Module will be used for the calculation of the next inpput values 
+        during gradient descent 
+
+        {DONE} Write Test Bench 
+
+24 JUNE 2025
+    - RACE CONDITION
+        - output of Func_grad_val_diff is fed into a comb capped_diff to calculate
+        the next the value of the valriable
+        - in CALL_FUNC state Func_grad_val_diff is being reset, leading to the outputs
+        (which is the distance from current value to the next value) going to zero 
+        by the next state CMP_STR leading to capped_diff producing the output such that 
+        next_val is same as current val, because the distance to next point fed in is zero 
+        CALL_FUNC:
+            -Func_grad_val_diff -> reset
+            -diff_out (dist_to_next_val) -> set to 0
+            -next_val -> curr_val - diff_out = curr_val {diff_out = 0}
+        CMP_STR:
+            *_in <=  *_next_val {which is the same as *_in because diff out is zero}
+
+25 JUNE 2025
+    - FSM_ERROR
+        - ERROR:
+            func_grad_val_diff is staying high for two clock cycles, causing error in the 
+            data registering in the CMP_STR state in the Top module. by causing a false transition 
+            from CALL_FUNC to CMP_STR once per Iteratation.
+        - FIX:
+            removed line 139 from func_grad_val_diff.v 
+            ```DONE : begin if (!start_func) next_state = IDLE; end ```
+            as this line was waiting till the next edge to shift to idle 
+            causing the system to stay in DONE for two clock cycles
+    - Function was growing Too fast s̶o̶ t̶h̶e̶ t̶r̶u̶n̶c̶a̶t̶i̶o̶n̶ e̶r̶r̶o̶r̶ w̶a̶s̶ t̶o̶o̶ h̶i̶g̶h̶, r̶e̶d̶u̶c̶e̶d̶ l̶e̶a̶r̶n̶i̶n̶g̶ r̶a̶t̶e̶     
+    s̶o̶ i̶t̶s̶ p̶r̶o̶d̶u̶c̶t̶ w̶i̶t̶h̶ t̶h̶e̶ g̶r̶a̶d̶i̶e̶n̶t̶ i̶s̶ w̶i̶t̶h̶i̶n̶ r̶a̶n̶g̶e̶ 
+        -{CORRECTION} Limitation of the Algorithm itself, if the divergence limit is crossed then 
+        the error grows exponentially, instead of decaying 
+
+26 JUNE 2025
+    - {DONE} IMPLEMENT CONVERGENCE LOGIC
+    {ASSUMPTION MADE}
+        - Added line 179 - 181 in Top.v on the ASSUMPTION that it takes AT LEAST one clockcycle 
+        for func_done to go high 
+        ```
+            end else begin 
+                z_prev <= z_min_inter;
+            end
+        ```
+
+27 JUNE 2025
+    {NOT NEEDED}-IMPLEMENT step even if function overflows bounds 
+        if (overflow during function call)
+            then current step = previous step size
+
+28 JUNE 2025
+    -{DONE} Add Dedicated learning rate parameter for every input
+    -{} Implement Rounding Logic, Such that fixed point rounds to the closest integer
+    -Add advanced Clipping logic to clip the gradient Dynamically 
+        - Based on which of the data threshold it falls into  
+
+
+
+        
+    

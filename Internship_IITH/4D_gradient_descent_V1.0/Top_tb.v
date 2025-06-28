@@ -4,7 +4,7 @@ module Top_tb;
 
     parameter NUM_ITERATIONS = 50;
     parameter LEARNING_RATE = 32'h00000010; // Learning Rate of 0.125 (Q24.8)
-    parameter INCREMENT = 16'h0100;
+    parameter INCREMENT = 16'h0F00;
 
     reg clk;
     reg rst_n;
@@ -26,6 +26,16 @@ module Top_tb;
     wire signed [15:0] b_min_out;          // 16 bit Q8.8 foramt
     wire signed [15:0] c_min_out;          // 16 bit Q8.8 foramt
     wire signed [15:0] d_min_out;          // 16 bit Q8.8 foramt
+
+    wire signed [7:0] a_min_read;          // 16 bit Q8.8 foramt
+    wire signed [7:0] b_min_read;          // 16 bit Q8.8 foramt
+    wire signed [7:0] c_min_read;          // 16 bit Q8.8 foramt
+    wire signed [7:0] d_min_read;          // 16 bit Q8.8 foramt
+
+    assign a_min_read = a_min_out[15:8];
+    assign b_min_read = b_min_out[15:8];
+    assign c_min_read = c_min_out[15:8];
+    assign d_min_read = d_min_out[15:8];
 
     wire done_op;
 
@@ -77,7 +87,7 @@ module Top_tb;
 
         #20 rst_n = 1'b1;  // Disassert reset
 
-        for (i = 1; i < 257; i = i+1 )begin 
+        for (i = 1; i < 17; i = i+1 )begin 
             a_input_buffer = a_input;
             b_input_buffer = b_input;
             c_input_buffer = c_input;
@@ -93,10 +103,10 @@ module Top_tb;
             $display("c input : %f (0x%H)", $itor(c_input) / 256.0, c_input);
             $display("d input : %f (0x%H)", $itor(d_input) / 256.0, d_input);
             $display("Z min: %f (0x%H)", $itor(z_min) / 256.0, z_min);
-            $display("a min: %f (0x%H)", $itor(a_min_out) / 256.0, a_min_out);
-            $display("b min: %f (0x%H)", $itor(b_min_out) / 256.0, b_min_out);
-            $display("c min: %f (0x%H)", $itor(c_min_out) / 256.0, c_min_out);
-            $display("d min: %f (0x%H)", $itor(d_min_out) / 256.0, d_min_out);
+            $display("a min: %f (0x%H)", $itor(a_min_read), a_min_out);
+            $display("b min: %f (0x%H)", $itor(b_min_read), b_min_out);
+            $display("c min: %f (0x%H)", $itor(c_min_read), c_min_out);
+            $display("d min: %f (0x%H)", $itor(d_min_read), d_min_out);
             $display("iter_count: %d ", uut.iter_count);
             $display("Convergence: %d ", uut.converged);
 

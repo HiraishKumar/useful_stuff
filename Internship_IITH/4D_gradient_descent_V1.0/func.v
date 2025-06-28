@@ -1,4 +1,4 @@
-module Top(
+module func(
     input clk,
     input rst_n,
     input start_func,
@@ -7,13 +7,13 @@ module Top(
     input signed [15:0] c_in,       // Q8.8 format
     input signed [15:0] d_in,       // Q8.8 format
     output reg signed [31:0] z_out, // Q24.8 format
-    output logic func_done,
-    output logic overflow
+    output reg func_done,
+    output reg overflow
 );
-    // func is assumed to be (a-2)^2 + (c+2)^2 + (5d)^2 + (b^2 - 5)
+    // func is assumed to be (a-2)^2 + (c+2)^2 + (2d)^2 + (b^2 - 5)
     // Terminology :
     //              term1 = (b^2 - 5)           
-    //              term2 = (5d)^2
+    //              term2 = (2d)^2
     //              term3 = (c+2)^2
     //              term4 = (a-2)^2
 
@@ -28,17 +28,17 @@ module Top(
     //               depending on control signal sub_n_add, 0 for add, 1 for sub .
     //               it has overflow outputs
 
-    // STAGE 1 - MULT: b^2, 5*d
+    // STAGE 1 - MULT: b^2, 2*d
     // STAGE 1 - SUM : a-2, c+2 
 
-    // STAGE 2 - MULT: (a-2)^2, (c+2)^2, (5d)^2
+    // STAGE 2 - MULT: (a-2)^2, (c+2)^2, (2d)^2
     // STAGE 2 - SUM : b^2 - 5
 
     // STAGE 3 - MULT: --NIL--
-    // STAGE 3 - SUM : ((a-2)^2 + (c+2)^2) , ((5d)^2 + (b^2 - 5))
+    // STAGE 3 - SUM : ((a-2)^2 + (c+2)^2) , ((2d)^2 + (b^2 - 5))
     
     // STAGE 4 - MULT: --NIL--
-    // STAGE 4 - SUM : ((a-2)^2 + (c+2)^2) + ((5d)^2 + (b^2 - 5))
+    // STAGE 4 - SUM : ((a-2)^2 + (c+2)^2) + ((2d)^2 + (b^2 - 5))
     
     localparam IDLE         = 3'b000;
     localparam INIT         = 3'b001;
@@ -129,7 +129,7 @@ end
 
             term1_plus_term2_reg<=  32'd0;
             term3_plus_term4_reg<=  32'd0;
-            final_value         <=  32'd0;
+            // final_value         <=  32'd0;
         end else begin
             curr_state <= next_state;
             case (curr_state)
@@ -189,9 +189,9 @@ end
     );
 
 
-    fixed_32_mult t2_par(       // Calculate 5*d
+    fixed_32_mult t2_par(       // Calculate 2*d
         .a_in({{16{d_in_buffer[15]}},d_in_buffer}) , // 16 bit input sign extended to 32
-        .b_in(PLUS_FIVE),                            // Constant
+        .b_in(PLUS_TWO),                            // Constant
         .p_out(term2_partial),
         .overflow(),
         .underflow_q()
@@ -226,7 +226,7 @@ end
         .overflow()
     );
 
-    fixed_32_mult t2(       // Calculate (5*d)^2
+    fixed_32_mult t2(       // Calculate (2*d)^2
         .a_in(term2_partial_reg),                    // Registered Input from prior stage
         .b_in(term2_partial_reg),                    // Registered Input from prior stage
         .p_out(term2),       // Wire Output registed at next clock edge for the next stage
@@ -253,7 +253,7 @@ end
     //-----------------------STAGE 2 ----------------------------
     
     //-----------------------STAGE 3 ----------------------------
-    fixed_32_add_sub t1_sum_t2(    //Calculate (b^2 - 5) + (5*d)^2
+    fixed_32_add_sub t1_sum_t2(    //Calculate (b^2 - 5) + (2*d)^2
         .a_in(term1_reg),                           // Registered Input from prior stage
         .b_in(term2_reg),                           // Registered Input from prior stage
         .sub_n_add(1'b0),
@@ -273,7 +273,7 @@ end
 
     //-----------------------STAGE 4 ----------------------------
     
-    fixed_32_add_sub final_val(    // Calculate ((a-2)^2 + (c+2)^2) + ((5d)^2 + (b^2 - 5))
+    fixed_32_add_sub final_val(    // Calculate ((a-2)^2 + (c+2)^2) + ((2d)^2 + (b^2 - 5))
         .a_in(term1_plus_term2_reg),                // Registered Input from prior stage
         .b_in(term3_plus_term4_reg),                // Registered Input from prior stage
         .sub_n_add(1'b0),

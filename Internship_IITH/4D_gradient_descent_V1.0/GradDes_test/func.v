@@ -1,4 +1,4 @@
-module Top(
+module func(
     input clk,
     input rst_n,
     input start_func,
@@ -7,8 +7,8 @@ module Top(
     input signed [15:0] c_in,       // Q8.8 format
     input signed [15:0] d_in,       // Q8.8 format
     output reg signed [31:0] z_out, // Q24.8 format
-    output logic func_done,
-    output logic overflow
+    output reg func_done,
+    output reg overflow
 );
     // func is assumed to be (a-2)^2 + (c+2)^2 + (2d)^2 + (b^2 - 5)
     // Terminology :
@@ -191,7 +191,7 @@ end
 
     fixed_32_mult t2_par(       // Calculate 2*d
         .a_in({{16{d_in_buffer[15]}},d_in_buffer}) , // 16 bit input sign extended to 32
-        .b_in(PLUS_TWO),                            // Constant
+        .b_in(PLUS_FIVE),                            // Constant
         .p_out(term2_partial),
         .overflow(),
         .underflow_q()

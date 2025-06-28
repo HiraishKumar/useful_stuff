@@ -13,7 +13,7 @@ module Top#(
     output reg func_done,
     output reg overflow
     // a4*​x^4 + a3*​x^3 + a2*​x^2 + a1*​x + a0​
-    // SET UP COS(x)
+    // SET UP for COS(x)
 );
 
 
