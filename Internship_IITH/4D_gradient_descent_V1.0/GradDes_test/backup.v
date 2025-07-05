@@ -1,284 +1,336 @@
-module Top #(
-    NUM_ITERATIONS = 50,
-    LEARNING_RATE = 32'h0000_0030,       // Decimal 0.125 Q24.8 format
-    CONVERGENCE_THRESHOLD = 16'h0100     // 1.0 in Q8.8 format (256 in decimal)
-) (
-    input clk,
+module func_grad_val_diff #(
+    parameter LEARNING_RATE_A = 32'h00000010, // Learning Rate of 0.125 (Q24.8)
+    parameter LEARNING_RATE_B = 32'h00000010, // Learning Rate of 0.125 (Q24.8)
+    parameter LEARNING_RATE_C = 32'h00000010, // Learning Rate of 0.125 (Q24.8)
+    parameter LEARNING_RATE_D = 32'h00000010 // Learning Rate of 0.125 (Q24.8)
+)(
+    input clk,            
     input rst_n,
-    input start_op,
-    input signed [15:0] a_init,         // Q8.8 format
-    input signed [15:0] b_init,         // Q8.8 format
-    input signed [15:0] c_init,         // Q8.8 format
-    input signed [15:0] d_init,         // Q8.8 format
-    output reg signed [31:0] z_min,     // Q24.8 format
-    output reg signed [15:0] a_at_min,     // Q8.8 format
-    output reg signed [15:0] b_at_min,     // Q8.8 format
-    output reg signed [15:0] c_at_min,     // Q8.8 format
-    output reg signed [15:0] d_at_min,     // Q8.8 format
-    output reg done_op,
-    output reg converged                // New output to indicate convergence
+    input start_func,     
+    input signed [15:0] a_in,           //(Q8.8 fixed-point format)
+    input signed [15:0] b_in,           //(Q8.8 fixed-point format)
+    input signed [15:0] c_in,           //(Q8.8 fixed-point format)
+    input signed [15:0] d_in,           //(Q8.8 fixed-point format)
+    output reg signed [31:0] value,     //(Q24.8 fixed-point format)
+    output reg signed [15:0] a_diff_out, // Change in a (LEARNING_RATE_A * gradient) (Q8.8 fixed-point format)
+    output reg signed [15:0] b_diff_out, // Change in b (LEARNING_RATE_B * gradient) (Q8.8 fixed-point format)
+    output reg signed [15:0] c_diff_out, // Change in c (LEARNING_RATE_C * gradient) (Q8.8 fixed-point format)
+    output reg signed [15:0] d_diff_out, // Change in d (LEARNING_RATE_D * gradient) (Q8.8 fixed-point format)
+    output reg func_done,  
+    output reg overflow    
 );
 
-    // INTERNAL VARIABLE REG
-    reg signed [15:0] a_in;     // Q8.8 format
-    reg signed [15:0] b_in;     // Q8.8 format
-    reg signed [15:0] c_in;     // Q8.8 format
-    reg signed [15:0] d_in;     // Q8.8 format
+    localparam TWO_H = 16'h0002; // Q8.8 fixed-point format (decimal 7.8125e-3 )
 
-    reg [$clog2(NUM_ITERATIONS + 1)-1 : 0] iter_count;
+    // Terminology:
+    //     fixed_32_capped_mult:
+    //         takes in two Q24.8 inputs and outputs a Q8.8 product with capped max and min of 0x7FFF and 0xFFFF
+    
 
-    reg func_reset;     
-    reg start_func;      
+    // localparam GRADatZERO = 32'h00000400;  // Gradeint of the function at zero (where it is after reset)
 
-    reg signed [31:0] z_min_inter;
+    // CONTROL
+    reg start_grad_func;
+    reg rst_n_grad_func;
+    reg [2:0] curr_state; 
+    reg [2:0] next_state; 
 
-    reg signed [15:0] a_at_min_inter;
-    reg signed [15:0] b_at_min_inter;
-    reg signed [15:0] c_at_min_inter;
-    reg signed [15:0] d_at_min_inter;
+    wire signed [31:0] z_val; // Output of the primary function (f(a_in, b_in, c_in, d_in ))
 
-    // REGISTERS TO HOLD STATE
-    reg [2:0] current_state;
-    reg [2:0] next_state;
+    wire signed [31:0] z_limit_a; // limit of function at (f(a_in - 2h, b_in, c_in, d_in))
+    wire signed [31:0] z_limit_b; // limit of function at (f(a_in, b_in - 2h, c_in, d_in))
+    wire signed [31:0] z_limit_c; // limit of function at (f(a_in, b_in, c_in - 2h, d_in))
+    wire signed [31:0] z_limit_d; // limit of function at (f(a_in, b_in, c_in, d_in - 2h))
 
-    // CONVERGENCE LOGIC REGISTERS
-    reg convergence_check;
-    reg step_size_converged;
+    reg signed [15:0] a_in_limit; // limiting values of inputs
+    reg signed [15:0] b_in_limit; // limiting values of inputs
+    reg signed [15:0] c_in_limit; // limiting values of inputs
+    reg signed [15:0] d_in_limit; // limiting values of inputs
 
-    // INTERNAL WIREs
-    wire func_done;
-    wire comp_result;
+    reg signed [15:0] a_in_lim_wire; // limiting values of inputs
+    reg signed [15:0] b_in_lim_wire; // limiting values of inputs
+    reg signed [15:0] c_in_lim_wire; // limiting values of inputs
+    reg signed [15:0] d_in_lim_wire; // limiting values of inputs
 
-    wire [15:0] a_next_val;
-    wire [15:0] b_next_val;
-    wire [15:0] c_next_val;
-    wire [15:0] d_next_val;
+    reg signed [15:0] a_in_buffer;
+    reg signed [15:0] b_in_buffer;
+    reg signed [15:0] c_in_buffer;
+    reg signed [15:0] d_in_buffer;
 
-    wire [31:0] z_out;
+    reg signed [31:0] a_grad_wire;
+    reg signed [31:0] b_grad_wire;
+    reg signed [31:0] c_grad_wire;
+    reg signed [31:0] d_grad_wire;
 
-    wire [15:0] a_diff_out;
-    wire [15:0] b_diff_out;
-    wire [15:0] c_diff_out;
-    wire [15:0] d_diff_out;
+    reg signed [31:0] a_grad;
+    reg signed [31:0] b_grad;
+    reg signed [31:0] c_grad;
+    reg signed [31:0] d_grad;
+    
+    wire signed [15:0] a_diff;
+    wire signed [15:0] b_diff;
+    wire signed [15:0] c_diff;
+    wire signed [15:0] d_diff;
 
-    // CONVERGENCE CHECK WIRES
-    wire [15:0] abs_a_diff, abs_b_diff, abs_c_diff, abs_d_diff;
-    wire a_converged, b_converged, c_converged, d_converged;
+    wire func_val_done;
+    wire func_a_grad_done;
+    wire func_b_grad_done;
+    wire func_c_grad_done;
+    wire func_d_grad_done;
+    reg all_func_done;
 
-    // STATE DEFINITION
+    wire func_val_overflow;
+    wire func_a_grad_overflow;
+    wire func_b_grad_overflow;
+    wire func_c_grad_overflow;
+    wire func_d_grad_overflow;
+
+    wire overflow_mult_a, underflow_mult_a;
+    wire overflow_mult_b, underflow_mult_b;
+    wire overflow_mult_c, underflow_mult_c;
+    wire overflow_mult_d, underflow_mult_d;
+
+    wire overflow1;
+    wire overflow2;
+    wire overflow_mult;
+    wire underflow_mult;
+
+
+    // STAGE 1 - buffer inputs into a_in, b_in, c_in, d_in 
+    //         - a_in_limit, b_in_limit, c_in_limit, d_in_limit 
+    // STAGE 2 - calculate a_grad, b_grad, c_grad, d_grad
+    // STAGE 3 - calculate a_diff, b_diff, c_diff, d_diff
+    // STAGE 4 - register a_diff, b_diff, c_diff, d_diff in a_diff_out, b_diff_out, c_diff_out, d_diff_out
+    //         - RAISE func_done
+
+
     localparam IDLE         = 3'b000;
     localparam INIT         = 3'b001;
-    localparam CALL_FUNC    = 3'b010; 
-    localparam CMP_STR      = 3'b011; // COMPARE AND STORE
-    localparam CHECK_CONV   = 3'b100; // CHECK CONVERGENCE
-    localparam DONE         = 3'b101;
+    localparam CALL_FUNC    = 3'b010;
+    localparam COMP_GRAD    = 3'b011;
+    localparam COMP_DIFF_1  = 3'b100;
+    localparam COMP_DIFF_2  = 3'b101;
+    localparam DONE         = 3'b110;
+
+    always @(*) begin
         
-    always @(*) begin 
-        next_state = current_state;
-        case (current_state)
-            IDLE : begin 
-                if (start_op) next_state = INIT;
-            end
-            INIT : begin 
-                next_state = CALL_FUNC;
-            end
-            CALL_FUNC : begin 
-                if (func_done) next_state = CMP_STR;
-            end
-            CMP_STR : begin
-                next_state = CHECK_CONV;
-            end
-            CHECK_CONV : begin
-                if (iter_count == NUM_ITERATIONS || step_size_converged) begin
-                    next_state = DONE;
-                end else begin 
-                    next_state = CALL_FUNC;
-                end
-            end
-            DONE : begin 
-                if (!start_op) next_state = IDLE;
-            end
+        // Can be ignored For bounding as the value change is very low
+        a_in_lim_wire <= a_in - TWO_H;
+        b_in_lim_wire <= b_in - TWO_H;
+        c_in_lim_wire <= c_in - TWO_H;
+        d_in_lim_wire <= d_in - TWO_H;
+
+        // gradeint will always fit in the 32 bit range as 
+        // gradeint function is always less than the main function  
+        a_grad_wire <= (z_val - z_limit_a) <<< 7;
+        b_grad_wire <= (z_val - z_limit_b) <<< 7;
+        c_grad_wire <= (z_val - z_limit_c) <<< 7;
+        d_grad_wire <= (z_val - z_limit_d) <<< 7;
+
+        all_func_done <= func_val_done & func_a_grad_done & func_b_grad_done & func_c_grad_done & func_d_grad_done;
+        overflow <= func_val_overflow | func_a_grad_overflow | func_b_grad_overflow | func_c_grad_overflow | func_d_grad_overflow;
+    end
+
+    
+    always @(*) begin
+        next_state = curr_state;
+        case (curr_state)
+            IDLE        : begin if (start_func)  next_state = INIT; end
+            INIT        : begin next_state = CALL_FUNC; end
+            CALL_FUNC   : begin if (all_func_done) next_state = COMP_GRAD; end
+            COMP_GRAD   : begin next_state = COMP_DIFF_1; end
+            COMP_DIFF_1 : begin next_state = COMP_DIFF_2; end
+            COMP_DIFF_2 : begin next_state = DONE; end
+            // DONE        : begin if (!start_func) next_state = IDLE; end
+            default     : begin next_state = IDLE; end
         endcase
     end
 
-    // Absolute value calculations for convergence check
-    assign abs_a_diff = (a_diff_out[15]) ? (~a_diff_out + 1'b1) : a_diff_out;
-    assign abs_b_diff = (b_diff_out[15]) ? (~b_diff_out + 1'b1) : b_diff_out;
-    assign abs_c_diff = (c_diff_out[15]) ? (~c_diff_out + 1'b1) : c_diff_out;
-    assign abs_d_diff = (d_diff_out[15]) ? (~d_diff_out + 1'b1) : d_diff_out;
+    always @(posedge clk, negedge rst_n) begin 
+        if (!rst_n) begin
+            curr_state <= IDLE;
 
-    // Individual parameter convergence checks
-    assign a_converged = (abs_a_diff < CONVERGENCE_THRESHOLD);
-    assign b_converged = (abs_b_diff < CONVERGENCE_THRESHOLD);
-    assign c_converged = (abs_c_diff < CONVERGENCE_THRESHOLD);
-    assign d_converged = (abs_d_diff < CONVERGENCE_THRESHOLD);
+            func_done <= 1'b0;
+            // overflow <= 1'b0;
 
-    always @(posedge clk, negedge rst_n) begin
-        if (!rst_n) begin 
-            current_state <= IDLE;
-            a_in <= 16'd0;
-            b_in <= 16'd0;
-            c_in <= 16'd0;
-            d_in <= 16'd0;
+            start_grad_func <= 1'b0; // Halt Func operation
+            rst_n_grad_func <= 1'b0; // reset funcs
 
-            a_at_min <= 16'd0;
-            b_at_min <= 16'd0;
-            c_at_min <= 16'd0;
-            d_at_min <= 16'd0;
+            a_in_buffer <= 16'd0;
+            b_in_buffer <= 16'd0;
+            c_in_buffer <= 16'd0;
+            d_in_buffer <= 16'd0;
 
-            a_at_min_inter <= 16'd0;
-            b_at_min_inter <= 16'd0;
-            c_at_min_inter <= 16'd0;
-            d_at_min_inter <= 16'd0;
+            a_in_limit <= 16'd0;
+            b_in_limit <= 16'd0;
+            c_in_limit <= 16'd0;
+            d_in_limit <= 16'd0;
 
-            z_min       <= 32'h7FFFFFFF;
-            z_min_inter <= 32'h7FFFFFFF;
+            a_grad <= 32'd0;
+            b_grad <= 32'd0;
+            c_grad <= 32'd0;
+            d_grad <= 32'd0;
+            
+            a_diff_out <= 0;
+            b_diff_out <= 0;
+            c_diff_out <= 0;
+            d_diff_out <= 0;
 
-            func_reset  <= 1'b0;        // Active Low Reset
-            iter_count  <= 0;
-            done_op     <= 1'b0;
-            converged   <= 1'b0;
-            convergence_check <= 1'b0;
-            step_size_converged <= 1'b0;
+            value <= 32'h0;
         end else begin
-            current_state <= next_state;
-            case (current_state)
-                IDLE : begin 
+            curr_state <= next_state;
+            case (curr_state)
+                IDLE: begin 
                     // DO NOTHING
-                    done_op <= 1'b0;
-                    converged <= 1'b0;
-                    convergence_check <= 1'b0;
-                    step_size_converged <= 1'b0;
-                    func_reset <= 1'b1; // Disassert Reset Of func
+                    func_done <= 1'b0; 
                 end
-                INIT : begin 
-                    a_in <= a_init;
-                    b_in <= b_init;
-                    c_in <= c_init;
-                    d_in <= d_init;
+                INIT: begin     
+                    a_in_buffer <= a_in;
+                    b_in_buffer <= b_in;
+                    c_in_buffer <= c_in;
+                    d_in_buffer <= d_in;
 
-                    a_at_min <= a_init;
-                    b_at_min <= b_init;
-                    c_at_min <= c_init;
-                    d_at_min <= d_init;
+                    a_in_limit <= a_in_lim_wire;
+                    b_in_limit <= b_in_lim_wire;
+                    c_in_limit <= c_in_lim_wire;
+                    d_in_limit <= d_in_lim_wire;
 
-                    a_at_min_inter <= a_init;
-                    b_at_min_inter <= b_init;
-                    c_at_min_inter <= c_init;
-                    d_at_min_inter <= d_init;
-
-                    z_min<= 32'h7FFFFFFF;
-                    z_min_inter <= 32'h7FFFFFFF;
-
-                    start_func <= 1'b1;    // assert Start
-                    iter_count <= 0;
-                    convergence_check <= 1'b0;
-                    step_size_converged <= 1'b0;
+                    start_grad_func <= 1'b0;    // Disassert Start
+                    rst_n_grad_func <= 1'b0;    // Assert Reset
                 end
-                CALL_FUNC : begin 
-                    if (func_done) begin
-                        iter_count <= iter_count + 1;
+                CALL_FUNC: begin
+                    start_grad_func <= 1'b1;    // Assert Start
+                    rst_n_grad_func <= 1'b1;    // Disassert Reset
+                end             
 
-                        z_min_inter <= z_out;
+                COMP_GRAD: begin
+                    a_grad <= a_grad_wire;
+                    b_grad <= b_grad_wire;
+                    c_grad <= c_grad_wire;
+                    d_grad <= d_grad_wire;
+                end    
 
-                        a_at_min_inter <= a_in;
-                        b_at_min_inter <= b_in;
-                        c_at_min_inter <= c_in;
-                        d_at_min_inter <= d_in;
-                        
-                        start_func <= 1'b0;    // Disassert Start
-                        convergence_check <= 1'b1; // Enable convergence check
-                    end 
-                end
-                CMP_STR : begin
-                    if (comp_result) begin
-                        z_min <= z_min_inter;
-                        a_at_min <= a_at_min_inter; 
-                        b_at_min <= b_at_min_inter; 
-                        c_at_min <= c_at_min_inter; 
-                        d_at_min <= d_at_min_inter; 
-                    end
-                    a_in <= a_next_val;
-                    b_in <= b_next_val;
-                    c_in <= c_next_val;
-                    d_in <= d_next_val;
+                COMP_DIFF_1: begin
+                    // DO NOTHING 
+                    // WAIT FOR DIFF_COMPUTATION TO FINISH
+                end 
 
-                    start_func <= 1'b1;     // assert Start
-                end
-                CHECK_CONV : begin
-                    // Check if all step sizes are below threshold
-                    if (convergence_check && a_converged && b_converged && c_converged && d_converged) begin
-                        step_size_converged <= 1'b1;
-                        converged <= 1'b1;
-                    end
-                    convergence_check <= 1'b0;
-                end
-                DONE : begin 
-                    done_op <= 1'b1;
-                    func_reset <= 1'b0;    // Assert Reset
-                end
+                COMP_DIFF_2: begin
+                    a_diff_out <= a_diff;      // Assign the valid computed a_diff
+                    b_diff_out <= b_diff;
+                    c_diff_out <= c_diff;
+                    d_diff_out <= d_diff;                    
+                end        
+
+                DONE: begin
+                    // Computation of Stage 4 registered   
+                    value <= z_val;
+                    func_done <= 1'b1;
+                end    
+                default : begin
+                    curr_state <= IDLE;
+                    func_done <= 1'b0;
+                    start_grad_func <= 1'b0;
+                    rst_n_grad_func <= 1'b0;
+                end         
             endcase
         end
     end
 
-    // MODULE CALLS
+    fixed_32_capped_mult calc_a_diff(       // Calculate a_grad * LEARNING RATE capped between -128.0 and 127.99609375
+        .a_in(a_grad),                    // Q24.8 reg input
+        .b_in(LEARNING_RATE_A),    // Q24.8 const input                
+        .p_out(a_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
+        .overflow(overflow_mult_a),
+        .underflow_q(underflow_mult_a)
+    ); 
+    fixed_32_capped_mult calc_b_diff(       // Calculate b_grad * LEARNING RATE capped between -128.0 and 127.99609375
+        .a_in(b_grad),                    // Q24.8 reg input
+        .b_in(LEARNING_RATE_B),    // Q24.8 const input                
+        .p_out(b_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
+        .overflow(overflow_mult_b),
+        .underflow_q(underflow_mult_b)
+    );
+    fixed_32_capped_mult calc_c_diff(       // Calculate c_grad * LEARNING RATE capped between -128.0 and 127.99609375
+        .a_in(c_grad),                    // Q24.8 reg input
+        .b_in(LEARNING_RATE_C),    // Q24.8 const input                
+        .p_out(c_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
+        .overflow(overflow_mult_c),
+        .underflow_q(underflow_mult_c)
+    );
+    fixed_32_capped_mult calc_d_diff(       // Calculate d_grad * LEARNING RATE capped between -128.0 and 127.99609375
+        .a_in(d_grad),                    // Q24.8 reg input
+        .b_in(LEARNING_RATE_D),    // Q24.8 const input                
+        .p_out(d_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
+        .overflow(overflow_mult_d),
+        .underflow_q(underflow_mult_d)
+    );
 
-    // Outputs the Gradient, value & Step size of 'function under test' at x_in 
-    func_grad_val_diff #(
-        .LEARNING_RATE(LEARNING_RATE)
-    ) grad_val_diff (
+
+    func func_val(
         .clk(clk),
-        .rst_n(func_reset),
-        .start_func(start_func),
-        .a_in(a_in),          // 16 bit Q8.8 format
-        .b_in(b_in),          // 16 bit Q8.8 format
-        .c_in(c_in),          // 16 bit Q8.8 format
-        .d_in(d_in),          // 16 bit Q8.8 format
-        .value(z_out),
-        .a_diff_out(a_diff_out),
-        .b_diff_out(b_diff_out),
-        .c_diff_out(c_diff_out),
-        .d_diff_out(d_diff_out),
-        .func_done(func_done), 
-        .overflow()
+        .rst_n(rst_n_grad_func),
+        .start_func(start_grad_func),
+        .a_in(a_in_buffer), // 16 bit Q8.8 foramt
+        .b_in(b_in_buffer), // 16 bit Q8.8 foramt
+        .c_in(c_in_buffer), // 16 bit Q8.8 foramt
+        .d_in(d_in_buffer), // 16 bit Q8.8 foramt
+        .z_out(z_val),         // 32 bit Q24.8 foramt
+        .func_done(func_val_done), 
+        .overflow(func_val_overflow)
     );
 
-    fixed_32_comp compare(
-        .a_in(z_min_inter),
-        .b_in(z_min),
-        .comp_result(comp_result)   // output 1 if z_min_inter < z_min
+    func func_a_grad (
+        .clk(clk),
+        .rst_n(rst_n_grad_func),
+        .start_func(start_grad_func),
+        .a_in(a_in_limit), // 16 bit Q8.8 foramt
+        .b_in(b_in_buffer), // 16 bit Q8.8 foramt
+        .c_in(c_in_buffer), // 16 bit Q8.8 foramt
+        .d_in(d_in_buffer), // 16 bit Q8.8 foramt
+        .z_out(z_limit_a),      // 32 bit Q24.8 foramt
+        .func_done(func_a_grad_done), 
+        .overflow(func_a_grad_overflow)
     );
 
-    fixed_16_capped_diff a_next(
-        .a_in(a_in),
-        .b_in(a_diff_out),
-        .next_val(a_next_val),
-        .overflow(),
-        .underflow_q()
+    func func_b_grad (
+        .clk(clk),
+        .rst_n(rst_n_grad_func),
+        .start_func(start_grad_func),
+        .a_in(a_in_buffer), // 16 bit Q8.8 foramt
+        .b_in(b_in_limit), // 16 bit Q8.8 foramt
+        .c_in(c_in_buffer), // 16 bit Q8.8 foramt
+        .d_in(d_in_buffer), // 16 bit Q8.8 foramt
+        .z_out(z_limit_b),      // 32 bit Q24.8 foramt
+        .func_done(func_b_grad_done), 
+        .overflow(func_b_grad_overflow)
     );
 
-    fixed_16_capped_diff b_next(
-        .a_in(b_in),
-        .b_in(b_diff_out),
-        .next_val(b_next_val),
-        .overflow(),
-        .underflow_q()
+    func func_c_grad (
+        .clk(clk),
+        .rst_n(rst_n_grad_func),
+        .start_func(start_grad_func),
+        .a_in(a_in_buffer), // 16 bit Q8.8 foramt
+        .b_in(b_in_buffer), // 16 bit Q8.8 foramt
+        .c_in(c_in_limit), // 16 bit Q8.8 foramt
+        .d_in(d_in_buffer), // 16 bit Q8.8 foramt
+        .z_out(z_limit_c),      // 32 bit Q24.8 foramt
+        .func_done(func_c_grad_done), 
+        .overflow(func_c_grad_overflow)
     );
 
-    fixed_16_capped_diff c_next(
-        .a_in(c_in),
-        .b_in(c_diff_out),
-        .next_val(c_next_val),
-        .overflow(),
-        .underflow_q()
-    );
-
-    fixed_16_capped_diff d_next(
-        .a_in(d_in),
-        .b_in(d_diff_out),
-        .next_val(d_next_val),
-        .overflow(),
-        .underflow_q()
+    func func_d_grad (
+        .clk(clk),
+        .rst_n(rst_n_grad_func),
+        .start_func(start_grad_func),
+        .a_in(a_in_buffer), // 16 bit Q8.8 foramt
+        .b_in(b_in_buffer), // 16 bit Q8.8 foramt
+        .c_in(c_in_buffer), // 16 bit Q8.8 foramt
+        .d_in(d_in_limit),  // 16 bit Q8.8 foramt
+        .z_out(z_limit_d),      // 32 bit Q24.8 foramt
+        .func_done(func_d_grad_done), 
+        .overflow(func_d_grad_overflow)
     );
 
 endmodule
+

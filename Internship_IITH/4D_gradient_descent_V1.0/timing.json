@@ -1,0 +1,30 @@
+{
+  signal: [
+    {name: 'clk',              wave: 'p.....................'},
+    {name: 'rst_n',            wave: '01...............0.1..'},
+    {name: 'start_op',         wave: '01...............0.1..'},
+    ['',
+      {name: 'a_input[7:0]',   wave: 'x2...............2....', data: ['a_initial', '0x01']},
+      {name: 'b_input[7:0]',   wave: 'x2...............2....', data: ['b_initial', '0x01']},
+      {name: 'c_input[7:0]',   wave: 'x2...............2....', data: ['c_initial', '0x01']},
+      {name: 'd_input[7:0]',   wave: 'x2...............2....', data: ['d_initial', '0x01']}
+    ],  
+    ['',
+      {name: 'FSM_state',      wave: '2.2.2........2..2.2...', data: ['IDLE', 'INIT', 'CALL_FUNC', 'CMP_STR', 'DONE', 'IDLE']},
+      {name: 'func_done',      wave: '0.........1.0.........'},
+      {name: 'done_op',        wave: '0...............1.0...'}
+    ],
+    ['',
+      {name: 'z_min[31:0]',    wave: 'x.2..............2....', data: ['INIT_VAL', 'RESULT']},
+      {name: 'a_min_out[7:0]', wave: 'x................2....', data: ['FINAL_A']},
+      {name: 'b_min_out[7:0]', wave: 'x................2....', data: ['FINAL_B']},
+      {name: 'c_min_out[7:0]', wave: 'x................2....', data: ['FINAL_C']},
+      {name: 'd_min_out[7:0]', wave: 'x................2....', data: ['FINAL_D']}
+    ],
+    ['',
+      {name: 'iter_count',     wave: '2.2..2.......2.......', data: ['0', '1', '...','N', 'FINAL']},
+      {name: 'converged',      wave: '0..........1..........'}
+    ]
+  ],
+  config: { hscale: 1 }
+}

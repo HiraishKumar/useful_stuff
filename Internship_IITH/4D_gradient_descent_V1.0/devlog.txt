@@ -84,11 +84,16 @@
 
 28 JUNE 2025
     -{DONE} Add Dedicated learning rate parameter for every input
-    -{} Implement Rounding Logic, Such that fixed point rounds to the closest integer
-    -Add advanced Clipping logic to clip the gradient Dynamically 
+    -{DONE} Implement Rounding Logic, Such that fixed point rounds to the closest integer
+    -{NOT NESCESSARY}Add advanced Clipping logic to clip the gradient Dynamically 
         - Based on which of the data threshold it falls into  
-
-
-
-        
     
+
+29 JUNE 2025
+    -{DONE} Finish Block Diagram
+    -{DONE} Finish (draft) timing Diagram
+    -{DONE} write design document draft
+
+30 JUNE 2025
+    -IMPLEMENT noise in the gradient descent Algorithm
+    -{DONE} Make Gaussian Noise generator  

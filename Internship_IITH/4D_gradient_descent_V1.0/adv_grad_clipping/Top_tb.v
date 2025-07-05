@@ -8,7 +8,7 @@ module Top_tb;
 
     // Outputs from the DUT will be 'wire'
     wire signed [7:0] rounded_out;
-    parameter INCREMENT = 16'h0001;
+    parameter INCREMENT = 16'h0010;
 
 
     Top uut (
@@ -29,7 +29,7 @@ module Top_tb;
         $display("---------------------------------------------------------");
 
         // Initialize inputs to known values (CRITICAL)
-        fixed_in = 16'h7FFA; 
+        fixed_in = 16'h0000; 
                              
 
         #10; // Allow initial values to propagate and UUT to compute

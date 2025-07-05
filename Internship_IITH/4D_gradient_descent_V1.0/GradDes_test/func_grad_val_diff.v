@@ -23,7 +23,7 @@ module func_grad_val_diff #(
     localparam TWO_H = 16'h0002; // Q8.8 fixed-point format (decimal 7.8125e-3 )
 
     // Terminology:
-    //     fixed_32_capped_mult:
+    //     fixed_64_mult:
     //         takes in two Q24.8 inputs and outputs a Q8.8 product with capped max and min of 0x7FFF and 0xFFFF
     
 
@@ -66,11 +66,21 @@ module func_grad_val_diff #(
     reg signed [31:0] b_grad;
     reg signed [31:0] c_grad;
     reg signed [31:0] d_grad;
+
+    wire signed [63:0] a_diff_unclamped_wire;
+    wire signed [63:0] b_diff_unclamped_wire;
+    wire signed [63:0] c_diff_unclamped_wire;
+    wire signed [63:0] d_diff_unclamped_wire;
+
+    reg signed [63:0] a_diff_unclamped;
+    reg signed [63:0] b_diff_unclamped;
+    reg signed [63:0] c_diff_unclamped;
+    reg signed [63:0] d_diff_unclamped;
     
-    wire signed [15:0] a_diff;
-    wire signed [15:0] b_diff;
-    wire signed [15:0] c_diff;
-    wire signed [15:0] d_diff;
+    wire signed [15:0] a_diff_wire;
+    wire signed [15:0] b_diff_wire;
+    wire signed [15:0] c_diff_wire;
+    wire signed [15:0] d_diff_wire;
 
     wire func_val_done;
     wire func_a_grad_done;
@@ -108,26 +118,27 @@ module func_grad_val_diff #(
     localparam INIT         = 3'b001;
     localparam CALL_FUNC    = 3'b010;
     localparam COMP_GRAD    = 3'b011;
-    localparam COMP_DIFF    = 3'b100;
-    localparam DONE         = 3'b101;
+    localparam COMP_DIFF  = 3'b100;
+    localparam CLAMP_DIFF  = 3'b101;
+    localparam DONE         = 3'b110;
 
     always @(*) begin
         
         // Can be ignored For bounding as the value change is very low
-        a_in_lim_wire = a_in - TWO_H;
-        b_in_lim_wire = b_in - TWO_H;
-        c_in_lim_wire = c_in - TWO_H;
-        d_in_lim_wire = d_in - TWO_H;
+        a_in_lim_wire <= a_in - TWO_H;
+        b_in_lim_wire <= b_in - TWO_H;
+        c_in_lim_wire <= c_in - TWO_H;
+        d_in_lim_wire <= d_in - TWO_H;
 
         // gradeint will always fit in the 32 bit range as 
         // gradeint function is always less than the main function  
-        a_grad_wire = (z_val - z_limit_a) <<< 7;
-        b_grad_wire = (z_val - z_limit_b) <<< 7;
-        c_grad_wire = (z_val - z_limit_c) <<< 7;
-        d_grad_wire = (z_val - z_limit_d) <<< 7;
+        a_grad_wire <= (z_val - z_limit_a) <<< 7;
+        b_grad_wire <= (z_val - z_limit_b) <<< 7;
+        c_grad_wire <= (z_val - z_limit_c) <<< 7;
+        d_grad_wire <= (z_val - z_limit_d) <<< 7;
 
-        all_func_done = func_val_done & func_a_grad_done & func_b_grad_done & func_c_grad_done & func_d_grad_done;
-        overflow = func_val_overflow | func_a_grad_overflow | func_b_grad_overflow | func_c_grad_overflow | func_d_grad_overflow;
+        all_func_done <= func_val_done & func_a_grad_done & func_b_grad_done & func_c_grad_done & func_d_grad_done;
+        overflow <= func_val_overflow | func_a_grad_overflow | func_b_grad_overflow | func_c_grad_overflow | func_d_grad_overflow;
     end
 
     
@@ -138,7 +149,8 @@ module func_grad_val_diff #(
             INIT        : begin next_state = CALL_FUNC; end
             CALL_FUNC   : begin if (all_func_done) next_state = COMP_GRAD; end
             COMP_GRAD   : begin next_state = COMP_DIFF; end
-            COMP_DIFF   : begin next_state = DONE; end
+            COMP_DIFF : begin next_state = CLAMP_DIFF; end
+            CLAMP_DIFF : begin next_state = DONE; end
             // DONE        : begin if (!start_func) next_state = IDLE; end
             default     : begin next_state = IDLE; end
         endcase
@@ -206,13 +218,20 @@ module func_grad_val_diff #(
                     b_grad <= b_grad_wire;
                     c_grad <= c_grad_wire;
                     d_grad <= d_grad_wire;
-                end     
+                end    
 
                 COMP_DIFF: begin
-                    a_diff_out <= a_diff;      // Assign the valid computed a_diff
-                    b_diff_out <= b_diff;
-                    c_diff_out <= c_diff;
-                    d_diff_out <= d_diff;                    
+                    a_diff_unclamped <= a_diff_unclamped_wire;
+                    b_diff_unclamped <= b_diff_unclamped_wire;
+                    c_diff_unclamped <= c_diff_unclamped_wire;
+                    d_diff_unclamped <= d_diff_unclamped_wire;
+                end 
+
+                CLAMP_DIFF: begin
+                    a_diff_out <= a_diff_wire;      // Assign the valid computed a_diff
+                    b_diff_out <= b_diff_wire;
+                    c_diff_out <= c_diff_wire;
+                    d_diff_out <= d_diff_wire;                    
                 end        
 
                 DONE: begin
@@ -230,33 +249,42 @@ module func_grad_val_diff #(
         end
     end
 
-    fixed_32_capped_mult calc_a_diff(       // Calculate a_grad * LEARNING RATE capped between -128.0 and 127.99609375
+    fixed_64_mult calc_a_diff(       // Calculate a_grad * LEARNING RATE capped between -128.0 and 127.99609375
         .a_in(a_grad),                    // Q24.8 reg input
         .b_in(LEARNING_RATE_A),    // Q24.8 const input                
-        .p_out(a_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
-        .overflow(overflow_mult_a),
-        .underflow_q(underflow_mult_a)
+        .p_out(a_diff_unclamped_wire)       // Q8.8 Wire Output registed at next clock edge for the next stage
     ); 
-    fixed_32_capped_mult calc_b_diff(       // Calculate b_grad * LEARNING RATE capped between -128.0 and 127.99609375
+    fixed_64_mult calc_b_diff(       // Calculate b_grad * LEARNING RATE capped between -128.0 and 127.99609375
         .a_in(b_grad),                    // Q24.8 reg input
         .b_in(LEARNING_RATE_B),    // Q24.8 const input                
-        .p_out(b_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
-        .overflow(overflow_mult_b),
-        .underflow_q(underflow_mult_b)
+        .p_out(b_diff_unclamped_wire)      // Q8.8 Wire Output registed at next clock edge for the next stage
     );
-    fixed_32_capped_mult calc_c_diff(       // Calculate c_grad * LEARNING RATE capped between -128.0 and 127.99609375
+    fixed_64_mult calc_c_diff(       // Calculate c_grad * LEARNING RATE capped between -128.0 and 127.99609375
         .a_in(c_grad),                    // Q24.8 reg input
         .b_in(LEARNING_RATE_C),    // Q24.8 const input                
-        .p_out(c_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
-        .overflow(overflow_mult_c),
-        .underflow_q(underflow_mult_c)
+        .p_out(c_diff_unclamped_wire)       // Q8.8 Wire Output registed at next clock edge for the next stage
     );
-    fixed_32_capped_mult calc_d_diff(       // Calculate d_grad * LEARNING RATE capped between -128.0 and 127.99609375
+    fixed_64_mult calc_d_diff(       // Calculate d_grad * LEARNING RATE capped between -128.0 and 127.99609375
         .a_in(d_grad),                    // Q24.8 reg input
         .b_in(LEARNING_RATE_D),    // Q24.8 const input                
-        .p_out(d_diff),       // Q8.8 Wire Output registed at next clock edge for the next stage
-        .overflow(overflow_mult_d),
-        .underflow_q(underflow_mult_d)
+        .p_out(d_diff_unclamped_wire)       // Q8.8 Wire Output registed at next clock edge for the next stage
+    );
+
+    fixed_64_clamp clamp_a(
+        .a_in(a_diff_unclamped),
+        .b_out(a_diff_wire)
+    );
+    fixed_64_clamp clamp_b(
+        .a_in(b_diff_unclamped),
+        .b_out(b_diff_wire)
+    );
+    fixed_64_clamp clamp_c(
+        .a_in(c_diff_unclamped),
+        .b_out(c_diff_wire)
+    );
+    fixed_64_clamp clamp_d(
+        .a_in(d_diff_unclamped),
+        .b_out(d_diff_wire)
     );
 
 
