@@ -97,3 +97,19 @@
 30 JUNE 2025
     -IMPLEMENT noise in the gradient descent Algorithm
     -{DONE} Make Gaussian Noise generator  
+
+3 JULY 2025
+    - {DONE} Write AXI wrapper for GrDes.v top module
+
+4 JULY 2025
+    - {DONE} FINISH synthesis in VIVADO
+    - {FIXED} Worst negetive slack -2.8 ns inside the fixed_32_capped_mult in the 
+    func_grad_val_diff module called during the COMP_DIFF state
+        - {FIX} break the stage into a COMP_DIFF and CLAMP_DIFF stage
+            - COMP_DIFF -> grad * LEARNING_RATE
+            - CLAMP_DIFF -> clamp DIFF to 16 bit range 0x7FFF and 0xFFFF
+        - {CAUSE} DSP48E1 unit inside the FPGA does a 18x28 mult and if the width of
+        operands is larger than that then it needs two of those modules which takes 
+        extra time (8ns total). Because the clamping was happening in the same cycles 
+        as the 32x32 mult it was crossing the time threshold of 10ns   
+     
